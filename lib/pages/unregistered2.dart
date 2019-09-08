@@ -69,61 +69,15 @@ class _Unregistered2 extends State<UnregisteredPage2> {
 
   List _pgtVal = ["", "LT10", "10-20", "20-30", "30-120", "ABV120", "MINBUS", "BIGBUS", "SEAT9-12", "SEAT7-8", "AB1000", "UP1000", "AB1500"];
 
-  List _pgt = ["",
-  "less than 10 quintals",
-  "between 10 - 20 quintals",
-  "between 20 - 30 quintals",
-  "between 30 - 120 quintals ( 6 tyres)",
-  "above 120 quintals (10-18 tyres)",
-  "Mini Bus",
-  "Big Bus",
-  "having seats between 9 - 12",
-  "having seats between 7-8",
-  "Cars/Vehicles above 1000CC and upto 1500CC",
-  "Cars/Vehicles upto 1000CC",
+  List _pgt = ["", "less than 10 quintals", "between 10 - 20 quintals", "between 20 - 30 quintals", "between 30 - 120 quintals ( 6 tyres)", "above 120 quintals (10-18 tyres)",
+  "Mini Bus", "Big Bus", "having seats between 9 - 12", "having seats between 7-8", "Cars/Vehicles above 1000CC and upto 1500CC", "Cars/Vehicles upto 1000CC",
   "Cars/Vehicles above 1500CC"];
 
   List _pgtpVal = ["", "SMDX", "DXBS", "ORBS", "NGES"];
 
-  List _pgtp = ["",
-  "Semi Deluxe Bus Services",
-  "Deluxe Bus Services",
-  "Ordinary Bus Services",
-  "Night Express Services"];
+  List _pgtp = ["", "Semi Deluxe Bus Services", "Deluxe Bus Services", "Ordinary Bus Services", "Night Express Services"];
 
-  List _cgcrVal = ["", "250", "251", "252",
-  "253",
-  "254",
-  "255",
-  "256",
-  "257",
-  "258",
-  "259",
-  "260",
-  "261",
-  "262",
-  "263",
-  "264",
-  "265",
-  "266",
-  "267",
-  "268",
-  "269",
-  "270",
-  "271",
-  "272",
-  "273",
-  "274",
-  "275",
-  "276",
-  "277",
-  "278",
-  "279",
-  "280",
-  "281",
-  "282",
-  "283",
-  "284"];
+  List _cgcrVal = ["", "250", "251", "252", "253", "254", "255", "256", "257", "258", "259", "260", "261", "262", "263", "264", "265", "266", "267", "268", "269", "270", "271", "272", "273", "274", "275", "276", "277", "278", "279", "280", "281", "282", "283", "284"];
 
   List _cgcr = ["",
   "Apples contained in the boxes upto 10 Kg.: Rs. 0.50 per box",
@@ -272,9 +226,36 @@ class _Unregistered2 extends State<UnregisteredPage2> {
           isExpanded: true,
           style: new TextStyle(color: Colors.black,
               fontWeight: FontWeight.normal,
-              fontSize: 10.0,
+              fontSize: 20.0,
               decorationStyle: TextDecorationStyle.dotted),
         ),
+        new Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            new Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: new TextField(
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "Weight"
+                    )
+                ),
+              ),
+            ),
+            new Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                "Kilogram",
+                style: TextStyle(
+                   // fontSize: 20,
+                   // fontWeight:FontWeight.bold
+                ),
+              ),
+            )
+          ],
+        ),
+        /*
         new Row(
           children: [
             Text(
@@ -293,6 +274,7 @@ class _Unregistered2 extends State<UnregisteredPage2> {
             ),
           ],
         ),
+        */
         new TextField(
           decoration: new InputDecoration(hintText: "Source Location"),
         ),
