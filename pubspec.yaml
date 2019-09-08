@@ -35,6 +35,9 @@ dev_dependencies:
   rflutter_alert: ^1.0.2
   toast: ^0.1.5
   uuid: ^2.0.2
+  device_id: ^0.2.0
+  device_info: ^0.4.0+2
+  unique_identifier: ^0.0.3
 
 
 # For information on the generic Dart part of this file, see the

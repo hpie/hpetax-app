@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter/services.dart';
+import 'package:unique_identifier/unique_identifier.dart';
+import 'package:hp_one/globals.dart' as globals;
+
 /*
 class HomeScreen extends StatelessWidget {
   @override
@@ -21,7 +25,20 @@ class HomeScreen extends StatelessWidget {
 }
 */
 
+Future<String> initUniqueIdentifierState() async {
+  String identifier;
+  try {
+    identifier = await UniqueIdentifier.serial;
+  } on PlatformException {
+    identifier = 'Failed to get Unique Identifier';
+  }
+  return identifier;
+}
+
+
 class HomePage extends StatelessWidget {
+  final Future<String> str = initUniqueIdentifierState();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +149,22 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
+            Center(
+              child: FutureBuilder<String>(
+                future: str,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    globals.isLoggedIn = (snapshot.data).toString();
+                    return Text(snapshot.data);
+                  }
+                  else if (snapshot.hasError) {
+                    return Text("${snapshot.error}");
+                  }
+                  // By default, show a loading spinner
+                  return CircularProgressIndicator();
+                },
+              ),
+            )
             /*
             new Row(
               children: <Widget>[
