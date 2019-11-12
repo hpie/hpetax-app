@@ -7,6 +7,7 @@ class Tax extends Object {
 
   String tax_type_id;
   String tax_type;
+  String tax_name;
 
   String tax_commodity_id;
   String tax_commodity_name;
@@ -46,6 +47,7 @@ class Tax extends Object {
 
     this.tax_type_id = "",
     this.tax_type = "",
+    this.tax_name = "",
     this.tax_commodity_id = "",
     this.tax_commodity_name = "",
     this.tax_commodity_description = "",
@@ -66,6 +68,7 @@ class Tax extends Object {
 
     this.tax_type_id = "";
     this.tax_type = "";
+    this.tax_name = "";
     this.tax_commodity_id = "";
     this.tax_commodity_name = "";
     this.tax_commodity_description = "";

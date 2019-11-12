@@ -5,31 +5,33 @@ import 'package:hp_one/netwoklayer/network_util.dart';
 import 'package:hp_one/netwoklayer/tax.dart';
 import 'package:hp_one/globals.dart' as globals;
 
-class TaxApi {
+import 'dealer.dart';
+
+class RegisterApi {
 
   NetworkUtil _netUtil = new NetworkUtil();
 
-  Future<dynamic> add(Tax tax) {
-    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/add-tax-item-queue";
+  Future<dynamic> add(Dealer dealer) {
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_dealer/register-dealer";
 
     var match = {
-      "item_queue_id": Tax.item_queue_id,
+      "tax_dealer_id": dealer.tax_dealer_id,
       "queue_session": globals.userSession,
-      "type_id": tax.tax_type_id,
-      "type_name": tax.tax_type_id,
-      "commodity_id": tax.tax_commodity_id,
-      "commodity_name": tax.tax_commodity_name,
-      "vehicle_number": tax.vehicle_number,
-      "item_weight": tax.weight,
-      "item_weight_units": tax.unit,
-      "item_quantity": (tax.quantity != "") ? tax.quantity : tax.weight,
-      "item_quantity_units": tax.unit,
-      "item_source_location": tax.source_location,
-      "item_destination_location": tax.destination_location,
-      "item_distanceinkm": tax.distance,
-      "item_tax_amount": tax.total_tax,
-
-      "item_status": "1",
+      "tax_dealer_code": dealer.tax_dealer_code,
+      "tax_dealer_password": dealer.tax_dealer_password,
+      "tax_dealer_tin": dealer.tax_dealer_tin,
+      "tax_dealer_tin_expiry": dealer.tax_dealer_tin_expiry,
+      "tax_dealer_mobile": dealer.tax_dealer_mobile,
+      "tax_dealer_pan": dealer.tax_dealer_pan,
+      "tax_dealer_aadhar": dealer.tax_dealer_aadhar,
+      "tax_dealer_security_q": (dealer.tax_dealer_security_q != "") ? dealer.tax_dealer_security_q : dealer.tax_dealer_security_q,
+      "tax_dealer_security_a": dealer.tax_dealer_security_a,
+      "tax_dealer_email": dealer.tax_dealer_email,
+      "tax_dealer_lastlogin": dealer.tax_dealer_lastlogin,
+      "tax_delaer_status": dealer.tax_delaer_status,
+      "created_by": dealer.created_by,
+      "modified_by": dealer.modified_by,
+      "modified_dt": dealer.modified_dt,
 
       "created_by":"Suresh",
       "modified_by":"Suresh",
@@ -66,32 +68,33 @@ class TaxApi {
     });
   }
 
-  Future<dynamic> update(Tax tax) {
-   // String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/update-tax-item-queue/"+tax.tax_item_id;
+  Future<dynamic> update(Dealer dealer) {
+   // String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/update-tax-item-queue/"+dealer.tax_item_id;
 
-    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/update-tax-item-queue/"+tax.tax_item_id;
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/update-tax-item-queue/"+dealer.tax_dealer_id;
 
     //String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_item_queue/add-tax-item-queue";
 
     //print("=======3333333333333=======" + BASE_TOKEN_URL);
 
     var match = {
-      "tax_item_id": tax.tax_item_id,
-      "tax_item_queue_id": tax.tax_item_queue_id,
-      "queue_session": globals.userSession,
-      "type_id": tax.tax_type_id,
-      "type_name": tax.tax_type_id,
-      "commodity_id": tax.tax_commodity_id,
-      "commodity_name": tax.tax_commodity_name,
-      "vehicle_number": tax.vehicle_number,
-      "item_weight": tax.weight,
-      "item_weight_units": tax.unit,
-      "item_quantity": (tax.quantity != "") ? tax.quantity : tax.weight,
-      "item_quantity_units": tax.unit,
-      "item_source_location": tax.source_location,
-      "item_destination_location": tax.destination_location,
-      "item_distanceinkm": tax.distance,
-      "item_tax_amount": tax.total_tax,
+    "tax_dealer_id": dealer.tax_dealer_id,
+    "queue_session": globals.userSession,
+    "tax_dealer_code": dealer.tax_dealer_code,
+    "tax_dealer_password": dealer.tax_dealer_password,
+    "tax_dealer_tin": dealer.tax_dealer_tin,
+    "tax_dealer_tin_expiry": dealer.tax_dealer_tin_expiry,
+    "tax_dealer_mobile": dealer.tax_dealer_mobile,
+    "tax_dealer_pan": dealer.tax_dealer_pan,
+    "tax_dealer_aadhar": dealer.tax_dealer_aadhar,
+    "tax_dealer_security_q": (dealer.tax_dealer_security_q != "") ? dealer.tax_dealer_security_q : dealer.tax_dealer_security_q,
+    "tax_dealer_security_a": dealer.tax_dealer_security_a,
+    "tax_dealer_email": dealer.tax_dealer_email,
+    "tax_dealer_lastlogin": dealer.tax_dealer_lastlogin,
+    "tax_delaer_status": dealer.tax_delaer_status,
+    "created_by": dealer.created_by,
+    "modified_by": dealer.modified_by,
+    "modified_dt": dealer.modified_dt,
 
       "item_status": "1",
 

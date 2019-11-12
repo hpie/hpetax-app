@@ -417,7 +417,13 @@ class _Test extends State<TestPage> {
                     children: <Widget>[
                       RaisedButton(
                         onPressed: () {
-                          Toast.show("Submitting data", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+
+                          if(tax_queue != null && tax_queue.length > 0) {
+                            Navigator.pushNamed(context, '/epayment');
+                          } else {
+                            Toast.show("Please add items to queue", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                          }
 
                         },
                         textColor: Colors.white,
@@ -491,6 +497,7 @@ class _Test extends State<TestPage> {
   void changedDropDownItem(String selectedType) {
     print("Called : changedDropDownItem");
     //clear_fields();
+    listTaxItemQueue("");
     updateCommodityDropdown(selectedType);
 
     setState(() {
@@ -541,12 +548,32 @@ class _Test extends State<TestPage> {
     super.initState();
   }
 
+  /*
+  List items of tax queue
+   */
   Future listTaxItemQueue(String newQuery) async {
     var search = await _taxApi.list(newQuery);
 
     setState(() {
       tax_queue = search.list;
+
+      if(tax_queue.length > 0) {
+        globals.selectedTaxType = tax_queue[0].tax_type;
+        _selectedTaxType = tax_queue[0].tax_type;
+        editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
+        updateCommodityDropdown(_selectedTaxType);
+      }
     });
+  }
+
+  String get_txtype_from_code(String tax_code) {
+    if(_taxtypeVal.indexOf(tax_queue[0].tax_type) > 0) {
+      print("=======_taxtype string : ======== : " + (_taxtype[_taxtypeVal.indexOf(tax_queue[0].tax_type)]).toString());
+
+      return _taxtype[_taxtypeVal.indexOf(tax_queue[0].tax_type)];
+    }
+
+    return "";
   }
 
   /*
@@ -564,7 +591,11 @@ class _Test extends State<TestPage> {
 
     setState(() {
       _dropDownMenuItems = buildAndGetDropDownMenuItems(_taxtype);
-      _selectedTaxType = _dropDownMenuItems[0].value;
+      if(globals.selectedTaxType != "") {
+        _selectedTaxType = globals.selectedTaxType;
+      } else {
+        _selectedTaxType = _dropDownMenuItems[0].value;
+      }
     });
 
 
@@ -791,7 +822,7 @@ class _Test extends State<TestPage> {
                 fontWeight:FontWeight.bold),
           ),
         ),
-    (!is_edit) ? new DropdownButton(
+    (!is_edit && globals.selectedTaxType == "") ? new DropdownButton(
           value: _selectedTaxType,
           items: _dropDownMenuItems,
           onChanged: changedDropDownItem,

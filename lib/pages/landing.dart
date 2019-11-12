@@ -1,29 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unique_identifier/unique_identifier.dart';
 import 'package:hp_one/globals.dart' as globals;
-
-/*
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Home'),
-      ),
-      body: Center(
-        child: FlatButton(
-          child: new Text('Unregistered', style: new TextStyle(fontSize: 20.0, color: Colors.red)),
-          onPressed: () {
-            Navigator.pushNamed(context, '/unregistered');
-          },
-        ),
-      ),
-    );
-  }
-}
-*/
 
 Future<String> initUniqueIdentifierState() async {
   String identifier;
@@ -39,8 +19,20 @@ Future<String> initUniqueIdentifierState() async {
 class HomePage extends StatelessWidget {
   final Future<String> str = initUniqueIdentifierState();
 
+  _checkLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    globals.username = prefs.getString('username');
+    globals.usertype = prefs.getInt('usertype').toString();
+
+    print("hi");
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
+    _checkLogin();
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
@@ -103,30 +95,50 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-            /*
             new Row(
               children: <Widget>[
                 Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: FlatButton(
-                        child: new Container(
-                          alignment: Alignment.center,
-                          height: 50.0,
-                          width: 200.0,
-                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
-                          child: new Text('Unregistered', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-                        ),
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/unregistered');
-                        },
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Login', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
                       ),
-
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
                     ),
+
+                  ),
                 ),
               ],
             ),
-            */
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Register', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
             new Row(
               children: <Widget>[
                 Expanded(
@@ -155,7 +167,14 @@ class HomePage extends StatelessWidget {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     globals.isLoggedIn = (snapshot.data).toString();
-                    return Text(snapshot.data);
+
+                  if(globals.userSession == "") {
+                  var now = new DateTime.now();
+                  print(now.millisecondsSinceEpoch);
+                  globals.userSession = globals.isLoggedIn + "_" + (now.millisecondsSinceEpoch).toString();
+                  }
+
+                    return Text("UUID : " + globals.userSession);
                   }
                   else if (snapshot.hasError) {
                     return Text("${snapshot.error}");
@@ -165,29 +184,6 @@ class HomePage extends StatelessWidget {
                 },
               ),
             )
-            /*
-            new Row(
-              children: <Widget>[
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: FlatButton(
-                      child: new Container(
-                        alignment: Alignment.center,
-                        height: 70.0,
-                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
-                        child: new Text('Unregistered2', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/unregistered2');
-                      },
-                    ),
-
-                  ),
-                ),
-              ],
-            )
-            */
           ],
         )
       ),
