@@ -5,6 +5,7 @@ import 'package:hp_one/netwoklayer/challan.dart';
 import 'package:hp_one/netwoklayer/epayment.dart';
 import 'package:hp_one/netwoklayer/epayment_api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
@@ -35,6 +36,16 @@ class _Userchallan extends State<UserchallanPage> {
 /*
 *  Start Variable declarations
 */
+
+  _checkLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    globals.username = prefs.getString('username');
+    globals.usertype = prefs.getInt('usertype').toString();
+
+    print("user_challan.dart user name : " + globals.username);
+    print("user_challan.dart user typeLogged in : " + globals.usertype);
+  }
+
   //variable to hide show rows of form
   TextEditingController challanFilterCnt = TextEditingController();
   List<Challan> tax_queue;
@@ -61,6 +72,7 @@ class _Userchallan extends State<UserchallanPage> {
 
   @override
   void initState() {
+    _checkLogin();
     listTaxItemQueue("");
     super.initState();
   }

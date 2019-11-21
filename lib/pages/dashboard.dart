@@ -7,10 +7,6 @@ import 'package:hp_one/globals.dart' as globals;
 
 class DashboardPage extends StatelessWidget {
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
     //Loading counter value on start
@@ -27,7 +23,7 @@ class DashboardPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashbaord'),
+        title: Text('Dashbaord Old'),
         actions: <Widget>[
           new IconButton(
             icon: new Icon(Icons.power_settings_new),

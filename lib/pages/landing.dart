@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unique_identifier/unique_identifier.dart';
 import 'package:hp_one/globals.dart' as globals;
+import 'package:url_launcher/url_launcher.dart';
 
 Future<String> initUniqueIdentifierState() async {
   String identifier;
@@ -25,6 +26,24 @@ class HomePage extends StatelessWidget {
     globals.usertype = prefs.getInt('usertype').toString();
 
     print("hi");
+  }
+
+  _launchURL() async {
+    const url = 'http://hpie.in/hpetax/payment.php?reference=1234&amount=22.50&tender_by=suresh&from=12-11-2019&to=20-11-2019';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  //Future<Null> _launchInWebViewOrVC(String url) async {
+_launchInWebViewOrVC(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url, forceSafariVC: true, forceWebView: true);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
 
@@ -183,7 +202,14 @@ class HomePage extends StatelessWidget {
                   return CircularProgressIndicator();
                 },
               ),
+            ),
+            /*
+            RaisedButton(
+              onPressed: _launchURL,
+              //onPressed: _launchInWebViewOrVC("http://hpie.in/hpetax/payment.php?reference=1234&amount=22.50&tender_by=suresh&from=12-11-2019&to=20-11-2019"),
+              child: Text('Make Payment'),
             )
+            */
           ],
         )
       ),

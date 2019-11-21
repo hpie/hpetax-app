@@ -25,16 +25,16 @@ import 'package:hp_one/globals.dart' as globals;
 import 'package:hp_one/util/device_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginPage extends StatefulWidget {
+class DashPage extends StatefulWidget {
   @override
-  _Login createState() {
+  _Dash createState() {
     var frm_data = new DeviceData();
     frm_data.get_data();
-    return _Login();
+    return _Dash();
   }
 }
 
-class _Login extends State<LoginPage> {
+class _Dash extends State<DashPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   _checkLogin() async {
@@ -42,8 +42,8 @@ class _Login extends State<LoginPage> {
     globals.username = prefs.getString('username');
     globals.usertype = prefs.getInt('usertype').toString();
 
-    //print("login.dart user name : " + globals.username.toString());
-    //print("login.dart user typeLogged in : " + globals.usertype);
+    print("Dash.dart user name : " + globals.username);
+    print("Dash.dart user type : " + globals.usertype);
   }
 
   /* Start Radio button functionality */
@@ -92,17 +92,11 @@ class _Login extends State<LoginPage> {
 
       String username = (response.containsKey("tax_dealer_email")) ? response["tax_dealer_email"] : response["tax_employee_email"];
       int usertype = (response.containsKey("tax_dealer_email")) ? 1 : 2;
-      int userid = (response.containsKey("tax_dealer_id")) ? response["tax_dealer_id"] : response["tax_employee_id"];;
 
       print("Logged in : " + username + " || type : " + usertype.toString());
       // set value
       prefs.setString('username', username);
       prefs.setInt('usertype', usertype);
-      prefs.setInt('userid', userid);
-
-      globals.username = username;
-      globals.usertype = usertype.toString();
-      globals.userid = userid.toString();
 
       Navigator.pushNamed(context, '/dashboard');
     } else {
@@ -132,6 +126,17 @@ class _Login extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    //Loading counter value on start
+    _logOut() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('username', "");
+      prefs.setInt('usertype', null);
+
+      globals.username = "";
+      globals.usertype = null;
+
+      print("logged out");
+    }
 
     String validatePassword(String value) {
       if (value.length < 3)
@@ -223,37 +228,118 @@ class _Login extends State<LoginPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Log In"),
+        title: Text('Dash'),
+        actions: <Widget>[
+          new IconButton(
+            icon: new Icon(Icons.power_settings_new),
+            onPressed: () {
+              _logOut();
+              Navigator.pushNamed(context, '/');
+            },
+          ),
+        ],
+        automaticallyImplyLeading: false,
       ),
-      body: new SingleChildScrollView(
-        child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-            child: new Form(
-              key: _formKey,
-              autovalidate: _autoValidate,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                usertypeField,
-                SizedBox(height: 45.0),
-                emailField,
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(
-                  height: 35.0,
-                ),
-                loginButon,
-                SizedBox(
-                  height: 15.0,
-                ),
-              ],
-            ),
-          ),
-          ),
-        ),
+      body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Text("Welcome", style: new TextStyle(fontSize: 30.0)),
+                  ),
+                ],
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Text(globals.username, style: new TextStyle(fontSize: 20.0)),
+                  ),
+                ],
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Text("User : " + globals.usertype, style: new TextStyle(fontSize: 20.0)),
+                  ),
+                ],
+              ),
+              new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FlatButton(
+                        child: new Container(
+                          alignment: Alignment.center,
+                          height: 50.0,
+                          width: 200.0,
+                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                          child: new Text('Profile', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/profile');
+                        },
+                      ),
+
+                    ),
+                  ),
+                ],
+              ),
+              new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FlatButton(
+                        child: new Container(
+                          alignment: Alignment.center,
+                          height: 50.0,
+                          width: 200.0,
+                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                          child: new Text('Invoice Recording', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/invoice_recording');
+                        },
+                      ),
+
+                    ),
+                  ),
+                ],
+              ),
+              new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FlatButton(
+                        child: new Container(
+                          alignment: Alignment.center,
+                          height: 50.0,
+                          width: 200.0,
+                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                          child: new Text('LogOut', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/logout');
+                        },
+                      ),
+
+                    ),
+                  ),
+                ],
+              ),
+
+            ],
+          )
       ),
     );
   }

@@ -1,14 +1,15 @@
+import 'package:hp_one/netwoklayer/players.dart';
 import 'package:hp_one/netwoklayer/tax.dart';
 
-class TaxitemModel {
+class SearchplacesModel {
   int status;
   String message;
   String response;
   bool success;
   bool error;
-  List<Tax> list;
+  List<Players> list;
 
-  TaxitemModel.map(dynamic obj) {
+  SearchplacesModel.map(dynamic obj) {
     if (obj != null) {
       this.status = obj["status"];
       this.success = obj["success"];
@@ -22,9 +23,7 @@ class TaxitemModel {
     }
   }
 
-  TaxitemModel.searchResult(dynamic obj) {
-    if(obj != null) {
-      list = obj.map<Tax>((json) => new Tax.fromJson(json)).toList();
-    }
+  SearchplacesModel.searchResult(dynamic obj) {
+    list = obj.map<Players>((json) => new Players.fromJson(json)).toList();
   }
 }

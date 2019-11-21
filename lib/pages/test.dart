@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:hp_one/netwoklayer/places_api.dart';
+import 'package:hp_one/netwoklayer/players.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:toast/toast.dart';
 
@@ -12,6 +15,8 @@ import 'package:hp_one/netwoklayer/tax_api.dart';
 import 'package:hp_one/netwoklayer/commodity.dart';
 import 'package:http/http.dart' as http;
 import 'package:hp_one/model/post.dart';
+
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
@@ -29,7 +34,7 @@ class TestPage extends StatefulWidget {
     return _Test();
   }
 }
-
+enum Departments { Production, Research, Purchasing, Marketing, Accounting }
 class _Test extends State<TestPage> {
 /*
 *  Start Variable declarations
@@ -39,8 +44,10 @@ class _Test extends State<TestPage> {
   String weight = "0";
   String places = "0";
   String passengers = "0";
+  String sourcePlaceId, destinationPlaceId;
 
   List<Tax> tax_queue;
+  List<Players> places_list;
 
   double total_tax = 0.0;
 
@@ -63,6 +70,7 @@ class _Test extends State<TestPage> {
   CommodityApi _commodityApi;
   Tax _tax = new Tax();
   TaxApi _taxApi = new TaxApi();
+  PlacesApi _placesApi = new PlacesApi();
 /*
 *  End Variable declarations
 */
@@ -531,6 +539,26 @@ class _Test extends State<TestPage> {
       getCommodityDetails(selectedCommodity);
       setState(() {
         _selectedCommodity = selectedCommodity;
+
+        weight = "0";
+        places = "0";
+        distance = "0";
+        passengers = "0";
+
+        if(_selectedTaxType == "AG") {
+          places = "1";
+          distance = "1";
+        }
+
+        if(_selectedTaxType == "PTCG") {
+          distance = "1";
+          passengers = "1";
+        }
+
+        if(_selectedTaxType == "CGCR") {
+          places = "1";
+          distance = "1";
+        }
         print(selectedCommodity);
       });
     //}
@@ -543,27 +571,85 @@ class _Test extends State<TestPage> {
     _taxtypeApi = new TaxtypeApi();
     _commodityApi = new CommodityApi();
 
+    sourcePlaceId = "";
+    destinationPlaceId = "";
+
     updateTaxtypeDropdown("");
     listTaxItemQueue("");
     super.initState();
+
+    //getPlaces("nas");
+  }
+
+  /*
+  List places
+   */
+  Future getPlaces(String newQuery) async {
+    print("");
+    var search = await _placesApi.get_places(newQuery);
+
+    setState(() {
+      places_list = search.list;
+    });
+  }
+
+  Future calculate_distance() async {
+    print("calculate_distance Called : Source - " + sourcePlaceId + " ||| Desitnation - " + destinationPlaceId);
+    if(sourcePlaceId != "" && destinationPlaceId != "") {
+      var distanceData = await _placesApi.get_distance(
+          sourcePlaceId, destinationPlaceId);
+
+      if(distanceData["status"] == "OK") {
+        var calculated_distance = (distanceData["rows"][0]["elements"][0]["distance"]["value"] / 1000).round();
+
+        _tax.distance = calculated_distance.toString();
+
+        distanceCnt.text = calculated_distance.toString();
+      }
+    }
   }
 
   /*
   List items of tax queue
    */
   Future listTaxItemQueue(String newQuery) async {
+
     var search = await _taxApi.list(newQuery);
 
-    setState(() {
-      tax_queue = search.list;
+      setState(() {
+        tax_queue = search.list;
+        if(tax_queue != null) {
+        if (tax_queue.length > 0) {
+          globals.selectedTaxType = tax_queue[0].tax_type;
+          _selectedTaxType = tax_queue[0].tax_type;
+          editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
+          updateCommodityDropdown(_selectedTaxType);
+/*
+          //update field display values
+          weight = "0";
+          places = "0";
+          distance = "0";
+          passengers = "0";
 
-      if(tax_queue.length > 0) {
-        globals.selectedTaxType = tax_queue[0].tax_type;
-        _selectedTaxType = tax_queue[0].tax_type;
-        editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
-        updateCommodityDropdown(_selectedTaxType);
-      }
-    });
+          if(_selectedTaxType == "AG") {
+            places = "1";
+            distance = "1";
+          }
+
+          if(_selectedTaxType == "PTCG") {
+            distance = "1";
+            passengers = "1";
+          }
+
+          if(_selectedTaxType == "CGCR") {
+            places = "1";
+            distance = "1";
+          }
+*/
+        }
+        }
+      });
+
   }
 
   String get_txtype_from_code(String tax_code) {
@@ -756,6 +842,9 @@ class _Test extends State<TestPage> {
     weightCnt.text = "";
     vehicleCnt.text = "";
     distanceCnt.text = "";
+
+    sourcePlaceId = "";
+    destinationPlaceId = "";
   }
 
   Future add_tax(context) async {
@@ -811,7 +900,166 @@ class _Test extends State<TestPage> {
     */
   }
 
+  AutoCompleteTextField searchTextField;
+  GlobalKey<AutoCompleteTextFieldState<Players>> key = new GlobalKey();
+  static List<Players> player = new List<Players>();
+  bool loading = true;
+
+  final TextEditingController _typeAheadController = TextEditingController();
+  String _selectedCity;
+/*
+  List<String> _listViewData = [
+    "A List View with many Text - Here's one!",
+    "A List View with many Text - Here's another!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+    "A List View with many Text - Here's more!",
+  ];
+
+  Widget user_row(Players player) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          player.description,
+          style: TextStyle(fontSize: 16.0),
+        ),
+        SizedBox(
+          width: 10.0,
+        ),
+        Text(
+          player.place_id,
+        ),
+      ],
+    );
+  }
+
+  void getUsers(text) async {
+    try {
+      final response =
+      await http.get("https://jsonplaceholder.typicode.com/users");
+      if (response.statusCode == 200) {
+        player = loadUsers(response.body);
+        print('Users: ${player.length}');
+        setState(() {
+          loading = false;
+        });
+      } else {
+        print("Error getting users.");
+      }
+    } catch (e) {
+      print("Error getting users.");
+    }
+  }
+
+  static List<Players> loadUsers(String jsonString) {
+    final parsed = json.decode(jsonString).cast<Map<String, dynamic>>();
+    return parsed.map<Players>((json) => Players.fromJson(json)).toList();
+  }
+  */
+
   Widget formUI() {
+
+
+
+    List<String> source_places = [];
+    final TextEditingController sourcePlacesCtrl = new TextEditingController();
+    /*
+    final sourcePlacesFilterField = new TextField(
+      controller: sourcePlacesCtrl,
+      onTap: () async {
+        final Departments deptName = await _asyncSimpleDialog(context);
+        print("Selected Departement is $deptName");
+      },
+      onSubmitted: (text) {
+        // litems.add(text);
+        getPlaces(text);
+        sourcePlacesCtrl.clear();
+        setState(() {});
+      },
+    );
+    */
+
+
+
+    Widget sourceDropdown = TypeAheadFormField(
+      textFieldConfiguration: TextFieldConfiguration(
+          controller: sourceLocationCnt,
+          decoration: InputDecoration(
+              labelText: 'Source'
+          )
+      ),
+      suggestionsCallback: (pattern) async {
+        return await _placesApi.get_places(pattern);
+      },
+      itemBuilder: (context, suggestion) {
+        return ListTile(
+          //leading: Icon(Icons.shopping_cart),
+          //title: Text(suggestion.id),
+          //subtitle: Text('\$${suggestion.description}'),
+          title: Text(suggestion.description),
+        );
+      },
+      transitionBuilder: (context, suggestionsBox, controller) {
+        return suggestionsBox;
+      },
+      onSuggestionSelected: (suggestion) {
+        sourceLocationCnt.text = suggestion.description;
+        _tax.source_location = suggestion.description;
+        sourcePlaceId = suggestion.place_id;
+
+        calculate_distance();
+        //print(suggestion.description);
+      },
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please select a city';
+        }
+      },
+      onSaved: (value) => _selectedCity = value,
+    );
+
+    Widget destinationDropdown = TypeAheadFormField(
+      autoFlipDirection : true,
+      textFieldConfiguration: TextFieldConfiguration(
+          controller: destinationLocationCnt,
+          decoration: InputDecoration(
+              labelText: 'Destination'
+          )
+      ),
+      suggestionsCallback: (pattern) async {
+        return await _placesApi.get_places(pattern);
+      },
+      itemBuilder: (context, suggestion) {
+        return ListTile(
+          //leading: Icon(Icons.shopping_cart),
+          //title: Text(suggestion.id),
+          //subtitle: Text('\$${suggestion.description}'),
+          title: Text(suggestion.description),
+        );
+      },
+      transitionBuilder: (context, suggestionsBox, controller) {
+        return suggestionsBox;
+      },
+      onSuggestionSelected: (suggestion) {
+        destinationLocationCnt.text = suggestion.description;
+        _tax.destination_location = suggestion.description;
+        destinationPlaceId = suggestion.place_id;
+        calculate_distance();
+        //print(suggestion.description);
+      },
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please select a city';
+        }
+      },
+      onSaved: (value) => _selectedCity = value,
+    );
+
     return new Column(
       children: <Widget>[
         new Align(
@@ -898,6 +1146,7 @@ class _Test extends State<TestPage> {
             )
           ],
         ) : new SizedBox.shrink(),
+        /*
         (places == "1") ? new Column(
           children: <Widget>[
             new TextField(
@@ -916,6 +1165,10 @@ class _Test extends State<TestPage> {
             )
           ]
         ) : new SizedBox.shrink(),
+        */
+
+        (places == "1") ? sourceDropdown : new SizedBox.shrink(),
+        (places == "1") ? destinationDropdown : new SizedBox.shrink(),
         (distance == "1") ? new TextField(
           decoration: new InputDecoration(hintText: "Distance (in Km) within HP"),
           controller: distanceCnt,
@@ -1030,6 +1283,66 @@ class _Test extends State<TestPage> {
             ),
           ],
         ) : new SizedBox.shrink(),
+        //sourcePlacesFilterField,
+
+
+
+        /*
+        new Expanded(
+            child: new ListView.builder
+              (
+                itemCount: (places_list != null) ? places_list.length : 1,
+                itemBuilder: (BuildContext ctxt, int Index) {
+                  //return get_challan(litems[Index]);
+                  if(places_list != null) {
+                    //return get_source_data(tax_queue[Index]);
+                  } else {
+                    return ListTile(
+                      title: Text('List is empty'),
+                    );
+                  }
+                }
+            )
+        )
+        */
+        /*
+        new Column(children: <Widget>[
+         searchTextField = AutoCompleteTextField<Players>(
+            key: key,
+            clearOnSubmit: false,
+            suggestions: places_list,
+            textChanged: (text) {
+              print("text changed : " + text);
+              setState(() {
+                //getPlaces(text);
+              });
+            },
+            style: TextStyle(color: Colors.black, fontSize: 16.0),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 20.0),
+              hintText: "Search Name",
+              hintStyle: TextStyle(color: Colors.black),
+            ),
+            itemFilter: (item, query) {
+              return item.description
+                  .toLowerCase()
+                  .startsWith(query.toLowerCase());
+            },
+            itemSorter: (a, b) {
+              return a.description.compareTo(b.description);
+            },
+            itemSubmitted: (item) {
+              setState(() {
+                searchTextField.textField.controller.text = item.description;
+              });
+            },
+            itemBuilder: (context, item) {
+              // ui for the autocomplete row
+              return user_row(item);
+            },
+          ),
+        ]),
+        */
       ],
     );
   }

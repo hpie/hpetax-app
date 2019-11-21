@@ -175,4 +175,67 @@ print(epayment.tax_type);
       return results;
     });
   }
+
+  // THis method is use on challan payment page
+  Future<ChallanitemModel> challan_list_for_payment(String query) {
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_challan_list/get-list-by-session";
+
+    print("in challan_list_for_payment : " + BASE_TOKEN_URL);
+
+    var match = {
+      "search_query": query,
+      "token": "123",
+      "device": "android",
+    };
+    print(match);
+
+    return _netUtil.post(BASE_TOKEN_URL,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: json.encode(match),
+        encoding: Encoding.getByName("utf-8")).then((dynamic res) {
+      // /*
+      print("=======challan_list_for_payment result=======");
+      print(res);
+      print("=======challan_list_for_payment result=======");
+     // */
+      var results = new ChallanitemModel.searchResult(res["Result"]);
+
+      print("=======results=======");
+      print(results);
+      print("=======results=======");
+
+      results.status = 200;
+      return results;
+    });
+  }
+
+  Future<dynamic> challan_user_list(String query) {
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_challan_list/get-list";
+
+    var match = {
+      "search_query": query,
+      "token": "123",
+      "device": "android",
+    };
+
+    return _netUtil.post(BASE_TOKEN_URL,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: json.encode(match),
+        encoding: Encoding.getByName("utf-8")).then((dynamic res) {
+      var results = new ChallanitemModel.searchResult(res["Result"]);
+
+      print("=======results=======");
+      print(results);
+      print("=======results=======");
+
+      results.status = 200;
+      return results.list;
+    });
+  }
 }
