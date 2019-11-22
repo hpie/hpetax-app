@@ -68,4 +68,35 @@ class UserApi {
       return res;
     });
   }
+
+  Future<dynamic> get_user(String userid) {
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_user/get_user";
+
+    var match = {
+      "userid" : userid,
+
+      "token": "123",
+      "device": "android",
+    };
+
+    print(match);
+
+    return _netUtil.post(BASE_TOKEN_URL,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: json.encode(match),
+        encoding: Encoding.getByName("utf-8")).then((dynamic res) {
+      // /*
+      //print("=======22222222222=======");
+      //print(res);
+      //print("=======2222222222=======");
+/*
+      var results = res["Result"];
+      */
+      //results.status = 200;
+      return res;
+    });
+  }
 }

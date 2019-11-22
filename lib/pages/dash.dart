@@ -131,9 +131,11 @@ class _Dash extends State<DashPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', "");
       prefs.setInt('usertype', null);
+      prefs.setInt('userid', null);
 
       globals.username = "";
       globals.usertype = null;
+      globals.userid = null;
 
       print("logged out");
     }
@@ -293,7 +295,7 @@ class _Dash extends State<DashPage> {
                   ),
                 ],
               ),
-              new Row(
+              (globals.usertype == 2) ? new Row(
                 children: <Widget>[
                   Expanded(
                     child: Padding(
@@ -308,6 +310,27 @@ class _Dash extends State<DashPage> {
                         ),
                         onPressed: () {
                           Navigator.pushNamed(context, '/invoice_recording');
+                        },
+                      ),
+
+                    ),
+                  ),
+                ],
+              ) : new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FlatButton(
+                        child: new Container(
+                          alignment: Alignment.center,
+                          height: 50.0,
+                          width: 200.0,
+                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                          child: new Text('Tax Challan', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/test');
                         },
                       ),
 
@@ -329,7 +352,8 @@ class _Dash extends State<DashPage> {
                           child: new Text('LogOut', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/logout');
+                          _logOut();
+                          Navigator.pushNamed(context, '/');
                         },
                       ),
 

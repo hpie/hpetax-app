@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:hp_one/netwoklayer/user_api.dart';
+//import 'package:flutter_date_picker/flutter_date_picker.dart';
+import 'package:hp_one/util/validations.dart';
+import 'package:intl/intl.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:toast/toast.dart';
 
@@ -35,19 +40,66 @@ class EpaymentPage extends StatefulWidget {
 class _Epayment extends State<EpaymentPage> {
 
   final _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
+  bool isLoading;
+
+  TextEditingController personNameCnt = TextEditingController();
+  TextEditingController mobileNumberCnt = TextEditingController();
+  TextEditingController emailCnt = TextEditingController();
 
   TextEditingController eptaxtypeCnt = TextEditingController();
   TextEditingController purposeCnt = TextEditingController();
   TextEditingController codeCnt = TextEditingController();
   TextEditingController totaltaxCnt = TextEditingController();
+  TextEditingController taxPeriodFromCnt = TextEditingController();
+  TextEditingController taxPeriodToCnt = TextEditingController();
+  TextEditingController dealerTypeCnt = TextEditingController();
 
   EpaymentApi _epaymentApi = new EpaymentApi();
   Epayment _epayment = new Epayment();
 
+  //User _user = new User();
+  UserApi _userApi = new UserApi();
+
+  CustomValidations _customValidations = new CustomValidations();
+
+  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
   @override
   void initState() {
     super.initState();
+    isLoading = false;
     getPaymentData("");
+
+    if(globals.username != "") {
+      getUserData(globals.userid);
+    }
+    dealerTypeCnt.text = (globals.username != "") ? "Registered" : "Unregistered";
+  }
+
+  /*
+  get user details
+   */
+  Future getUserData(String newQuery) async {
+    var response;
+    //Toast.show("hiiiiiiiiiiiii", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
+    response = await _userApi.get_user(newQuery);
+    Toast.show(response["message"], context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+    ///*
+    if(response["success"]) {
+      print("in success");
+      print(response);
+
+      personNameCnt.text = response["tax_dealer_name"];
+      mobileNumberCnt.text = response["tax_dealer_mobile"];
+      emailCnt.text = response["tax_dealer_email"];
+
+      dealerTypeCnt.text = (globals.username != "") ? "Registered" : "Unregistered";
+
+    } else {
+      print("in else");
+    }
   }
 
   /*
@@ -93,9 +145,43 @@ class _Epayment extends State<EpaymentPage> {
         //listTaxItemQueue("");
       });
     } else {
+      setState(() {
+        isLoading = false;
+      });
       print("in else");
     }
 
+  }
+
+  String format_date(var date) {
+    var formatter = new DateFormat('yyyy-MM-dd');
+    String formatted = formatter.format(date);
+    print(formatted); // something like 2013-04-20
+    return formatted;
+  }
+  String validateName(String value) {
+    if (value.length < 3)
+      return 'Name must be more than 2 charater';
+    else
+      return null;
+  }
+
+  String validateMobile(String value) {
+// Indian Mobile number are of 10 digit only
+    if (value.length != 10)
+      return 'Mobile Number must be of 10 digit';
+    else
+      return null;
+  }
+
+  String validateEmail(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return 'Enter Valid Email';
+    else
+      return null;
   }
 
   @override
@@ -103,7 +189,8 @@ class _Epayment extends State<EpaymentPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Epayment"),
-          automaticallyImplyLeading:false,
+          //automaticallyImplyLeading:false,
+
         ),
         body:  new SingleChildScrollView(
 
@@ -122,303 +209,184 @@ class _Epayment extends State<EpaymentPage> {
 
     return new Column(
       children: <Widget>[
-        new Align(
-          alignment: Alignment.topLeft,
-          child: Text(
-            "Tax Type",
-            style: TextStyle(fontSize: 15,
-                fontWeight:FontWeight.bold),
-          ),
+
+        TextFormField(
+            decoration: new InputDecoration(
+            labelText: 'Invoice Number'
         ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "Tax Type", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
+        enabled : false,
+        controller: eptaxtypeCnt
+        ),
+        TextFormField(
+          validator: validateName,
+            decoration: new InputDecoration(
+                labelText: 'Name of Person'
             ),
-            enabled : false,
-            controller: eptaxtypeCnt,
             onChanged: (text) {
-              //_tax.total_tax = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Name of Person",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
               _epayment.person_name = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Mobile Number",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-        decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-            //fontSize: 5.0,
-            height: 0.5,
-            color: Colors.black
-            ),
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.mobile_number = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Email ID",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-            //fontSize: 5.0,
-            height: 0.5,
-            color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.email = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Address",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.address = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Location",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.location = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Dealer Type",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.dealer_type = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Tax Period From",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.tax_period_from = text;
             },
-            keyboardType: TextInputType.datetime,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Tax Period To",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
-          ),
-        ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            //controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.tax_period_to = text;
+            onSaved: (String val) {
+              _epayment.person_name = val;
             },
-            keyboardType: TextInputType.datetime,
+            controller: personNameCnt
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Purpose",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
+        TextFormField(
+          keyboardType: TextInputType.phone,
+          validator: validateMobile,
+          decoration: new InputDecoration(
+              labelText: 'Mobile Number'
+          ),
+          onChanged: (text) {
+            _epayment.mobile_number = text;
+          },
+            onSaved: (String val) {
+              _epayment.mobile_number = val;
+            },
+            controller: mobileNumberCnt
+        ),
+
+        TextFormField(
+          keyboardType: TextInputType.emailAddress,
+          validator: validateEmail,
+          decoration: new InputDecoration(
+              labelText: 'Email ID'
+          ),
+          onChanged: (text) {
+            _epayment.email = text;
+          },
+            onSaved: (String val) {
+              _epayment.email = val;
+            },
+            controller: emailCnt
+        ),
+
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Address'
+          ),
+          onChanged: (text) {
+            _epayment.address = text;
+          },
+        ),
+
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Location'
+          ),
+          onChanged: (text) {
+            _epayment.location = text;
+          },
+        ),
+
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Dealer Type'
+          ),
+          onChanged: (text) {
+            _epayment.dealer_type = text;
+          },
+            onSaved: (String val) {
+              _epayment.dealer_type = val;
+            },
+            controller: dealerTypeCnt
+        ),
+
+
+        TextFormField(
+          obscureText: false,
+          //style: style,
+          controller: taxPeriodFromCnt,
+          validator: validateName,
+          onSaved: (String val) {
+            _epayment.tax_period_from = val;
+          },
+          onTap: () {
+            DatePicker.showDatePicker(context,
+                showTitleActions: true,
+                minTime: DateTime(1940, 1, 1),
+                // maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+                maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+                  taxPeriodFromCnt.text = date.toString();
+                  _epayment.tax_period_from = date.toString();
+                }, onConfirm: (date) {
+                  taxPeriodFromCnt.text = format_date(date);
+                }, currentTime: DateTime.now());
+          },
+          decoration: InputDecoration(
+              labelText: 'Tax Period From'
           ),
         ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            enabled : false,
-            controller: purposeCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.purpose = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Code",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
+
+        TextFormField(
+          obscureText: false,
+          //style: style,
+          controller: taxPeriodToCnt,
+          validator: validateName,
+          onSaved: (String val) {
+            _epayment.tax_period_to = val;
+          },
+          onTap: () {
+            DatePicker.showDatePicker(context,
+                showTitleActions: true,
+                minTime: DateTime(1940, 1, 1),
+                // maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+                maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+                  taxPeriodToCnt.text = date.toString();
+                  _epayment.tax_period_to = date.toString();
+                }, onConfirm: (date) {
+                  taxPeriodToCnt.text = format_date(date);
+                }, currentTime: DateTime.now());
+          },
+          decoration: InputDecoration(
+              labelText: 'Tax Period To'
           ),
         ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            enabled:false,
-            controller: codeCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.code = text;
-            }
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: new Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "Amount",
-              style: TextStyle(fontSize: 15,
-                  fontWeight:FontWeight.bold),
-            ),
+
+
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Purpose'
           ),
+          enabled : false,
+          controller: purposeCnt,
+          onChanged: (text) {
+            _epayment.purpose = text;
+          },
         ),
-        new TextField(
-            decoration: new InputDecoration(hintText: "", contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 5)),
-            style: new TextStyle(
-              //fontSize: 5.0,
-                height: 0.5,
-                color: Colors.black
-            ),
-            enabled : false,
-            controller: totaltaxCnt,
-            onChanged: (text) {
-              //_tax.total_tax = text;
-              _epayment.amount = text;
-            }
+
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Code'
+          ),
+          enabled:false,
+          controller: codeCnt,
+          onChanged: (text) {
+            _epayment.code = text;
+          },
         ),
+        TextFormField(
+          decoration: new InputDecoration(
+              labelText: 'Amount'
+          ),
+          enabled : false,
+          controller: totaltaxCnt,
+          onChanged: (text) {
+            _epayment.amount = text;
+          },
+        ),
+
 
         const SizedBox(height: 30),
 
         new Row(
           children: <Widget>[
-            RaisedButton(
+            (!isLoading) ? RaisedButton(
               onPressed: () {
-                add_epayment_data(context);
+                setState(() {
+                  isLoading = true;
+                });
+                _validateInputs(context);
+                //add_epayment_data(context);
               },
               textColor: Colors.white,
               padding: const EdgeInsets.all(0.0),
@@ -438,7 +406,7 @@ class _Epayment extends State<EpaymentPage> {
                     style: TextStyle(fontSize: 20)
                 ),
               ),
-            ),
+            ) : CircularProgressIndicator(),
             RaisedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/test');
@@ -464,18 +432,53 @@ class _Epayment extends State<EpaymentPage> {
             ),
           ],
         ),
+        RaisedButton(
+          onPressed: () {
+            setState(() {
+              isLoading = false;
+            });
+            getUserData(globals.userid);
+          },
+          textColor: Colors.white,
+          padding: const EdgeInsets.all(0.0),
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: <Color>[
+                  Color(0xFF0D47A1),
+                  Color(0xFF1976D2),
+                  Color(0xFF42A5F5),
+                ],
+              ),
+            ),
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+                'Get User',
+                style: TextStyle(fontSize: 20)
+            ),
+          ),
+        )
       ],
     );
   }
 
+  void _validateInputs(context) {
+    if (_formKey.currentState.validate()) {
+//    If all data are correct then save data to out variables
 
+      // No any error in validation
+      _formKey.currentState.save();
+print("hiiiiiiiiiiiiiiiiiiiii");
+      add_epayment_data(context);
 
-
-
-
-
-
-
-
+    } else {
+//    If all data are not valid then start auto validation.
+      print("hiiiiiiiiiielseriiiiiiiiiii");
+      setState(() {
+        isLoading = false;
+        _autoValidate = true;
+      });
+    }
+  }
 }
 

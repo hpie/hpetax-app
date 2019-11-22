@@ -16,6 +16,7 @@ class RegisterApi {
 
     var match = {
       "tax_dealer_id": dealer.tax_dealer_id,
+      "tax_dealer_name": dealer.tax_dealer_name,
       "queue_session": globals.userSession,
       "tax_dealer_code": dealer.tax_dealer_code,
       "tax_dealer_password": dealer.tax_dealer_password,
@@ -41,8 +42,8 @@ class RegisterApi {
 
     };
 
-    //print(match);
-
+    print(match);
+   // /*
     return _netUtil.post(BASE_TOKEN_URL,
         headers: {
           "Accept": "application/json",
@@ -65,7 +66,10 @@ class RegisterApi {
       //print("=======3333333=======");
 
       return results;
+
     });
+
+    // */
   }
 
   Future<dynamic> update(Dealer dealer) {
@@ -79,6 +83,7 @@ class RegisterApi {
 
     var match = {
     "tax_dealer_id": dealer.tax_dealer_id,
+    "tax_dealer_name": dealer.tax_dealer_name,
     "queue_session": globals.userSession,
     "tax_dealer_code": dealer.tax_dealer_code,
     "tax_dealer_password": dealer.tax_dealer_password,

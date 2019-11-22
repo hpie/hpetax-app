@@ -51,6 +51,14 @@ class _Register extends State<RegisterPage> {
 
   TextEditingController editTaxDealerTinExpiryCnt = TextEditingController();
 
+
+  TextEditingController firstnameCnt = TextEditingController();
+  TextEditingController surnameCnt = TextEditingController();
+  TextEditingController dealerTinCnt = TextEditingController();
+  TextEditingController mobileCnt = TextEditingController();
+  TextEditingController emailCnt = TextEditingController();
+  TextEditingController passwordCnt = TextEditingController();
+
 /*
 *  End Variable declarations
 */
@@ -92,44 +100,21 @@ class _Register extends State<RegisterPage> {
         return null;
     }
 
-    void _validateInputs(context) {
-      if (_formKey.currentState.validate()) {
-//    If all data are correct then save data to out variables
-
-        // No any error in validation
-        _formKey.currentState.save();
-        //register_user(context);
-        print("Name $_firstname");
-        print("Mobile $_mobile");
-        print("Email $_email");
-      } else {
-//    If all data are not valid then start auto validation.
-        setState(() {
-          _autoValidate = true;
-        });
-      }
-    }
     Future register_user(context) async {
       var response;
-
-      //response = await _taxApi.add(_tax);
-      ///*
-      /*
-      if(!is_edit) {
-        print("edit false");
-        Tax.item_queue_id++;
-        //response = await _taxApi.add(_tax);
-      } else {
-        print("edit true");
-        //response = await _taxApi.update(_tax);
-      }
-      */
+      print("helllooo");
       response = await _registerApi.add(_dealer);
       Toast.show(response.message, context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
 
       if(response.success) {
         print("in success");
-        //clear_fields();
+        firstnameCnt.text = "";
+        surnameCnt.text = "";
+        dealerTinCnt.text = "";
+        editTaxDealerTinExpiryCnt.text = "";
+        mobileCnt.text = "";
+        emailCnt.text = "";
+        passwordCnt.text = "";
         setState(() {
 
         });
@@ -138,16 +123,41 @@ class _Register extends State<RegisterPage> {
       }
     }
 
+    void _validateInputs(context) {
+      if (_formKey.currentState.validate()) {
+//    If all data are correct then save data to out variables
+
+        // No any error in validation
+        _formKey.currentState.save();
+        print("hiiiiiiiiiiiiiii");
+       register_user(context);
+
+      } else {
+//    If all data are not valid then start auto validation.
+        setState(() {
+          _autoValidate = true;
+        });
+      }
+    }
+
+
+    get_name() {
+      String name = _firstname + " " + _surname;
+      _dealer.tax_dealer_name = name.trim();
+    }
+
     final firstnameField = TextFormField(
       obscureText: false,
       style: style,
       validator: validateName,
       onSaved: (String val) {
-        _firstname = val;
+        _dealer.tax_dealer_name = val;
+        //get_name();
       },
+      controller: firstnameCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Firstname",
+          hintText: "Name",
           border:
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
@@ -157,7 +167,9 @@ class _Register extends State<RegisterPage> {
       validator: validateName,
       onSaved: (String val) {
         _surname = val;
+        //get_name();
       },
+      controller: surnameCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Surname",
@@ -172,6 +184,7 @@ class _Register extends State<RegisterPage> {
       onSaved: (String val) {
         _dealer.tax_dealer_mobile = val;
       },
+      controller: mobileCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Mobile",
@@ -187,6 +200,7 @@ class _Register extends State<RegisterPage> {
         onSaved: (String val) {
           _dealer.tax_dealer_email = val;
         },
+      controller: emailCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Email",
@@ -199,6 +213,7 @@ class _Register extends State<RegisterPage> {
         onSaved: (String val) {
           _dealer.tax_dealer_password = val;
         },
+      controller: passwordCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
@@ -212,6 +227,7 @@ class _Register extends State<RegisterPage> {
       onSaved: (String val) {
         _dealer.tax_dealer_tin = val;
       },
+      controller: dealerTinCnt,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Dealer Tin",
@@ -256,7 +272,7 @@ class _Register extends State<RegisterPage> {
         onPressed: () {
 
           _validateInputs(context);
-          register_user(context);
+
 
 
         },
@@ -287,8 +303,8 @@ class _Register extends State<RegisterPage> {
               children: <Widget>[
                 //SizedBox(height: 45.0),
                 firstnameField,
-                SizedBox(height: 20.0),
-                surnameField,
+                //SizedBox(height: 20.0),
+                //surnameField,
                 SizedBox(height: 20.0),
                 dealerTinField,
                 SizedBox(height: 20.0),

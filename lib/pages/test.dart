@@ -110,7 +110,12 @@ class _Test extends State<TestPage> {
                 Tab(icon: Icon(Icons.list))
               ],
             ),
-            title: Text('Unregistered'),
+            title: (globals.usertype == "") ? Text('Unregistered') : Text('Challan'),
+              leading: IconButton(icon:Icon(Icons.arrow_back),
+                  onPressed:() {
+                    Navigator.pushNamed(context, '/');
+                  }
+              )
           ),
           body: TabBarView(
             children: [

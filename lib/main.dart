@@ -8,6 +8,7 @@ import 'package:hp_one/pages/register.dart';
 import 'package:hp_one/pages/test.dart';
 import 'package:hp_one/pages/challan.dart';
 import 'package:hp_one/pages/payment.dart';
+import 'package:hp_one/pages/unregistered.dart';
 import 'package:hp_one/pages/user_challan.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,6 +45,8 @@ void main() {
       //'/': (context) => (globals.username == "") ? HomePage() : DashboardPage(),
       '/': (context) => (globals.username == "" || globals.username == null) ? HomePage() : DashPage(),
       //'/dashboard': (context) => DashboardPage(),
+
+      '/unregistered': (context) => UnregisteredPage(),
       '/dashboard': (context) => DashPage(),
       '/invoice_recording': (context) => InvoicePage(),
       '/user_challan': (context) => UserchallanPage(),

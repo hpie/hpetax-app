@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:hp_one/netwoklayer/challan.dart';
+import 'package:hp_one/util/validations.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:toast/toast.dart';
 
@@ -42,6 +43,7 @@ class _Payment extends State<PaymentPage> {
 
   EpaymentApi _epaymentApi = new EpaymentApi();
   Epayment _epayment = new Epayment();
+  CustomValidations _customValidations = new CustomValidations();
 
   final customLoaderField =  CircularProgressIndicator();
 
@@ -65,7 +67,7 @@ class _Payment extends State<PaymentPage> {
   @override
   void initState() {
     super.initState();
-    listTaxItemQueue(challanIdCnt.text);
+    listTaxItemQueue(globals.challanId);
   }
 
   _launchURL() async {
@@ -115,6 +117,7 @@ class _Payment extends State<PaymentPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text("Payment"),
+          automaticallyImplyLeading:false,
         ),
         body:  new SingleChildScrollView(
 

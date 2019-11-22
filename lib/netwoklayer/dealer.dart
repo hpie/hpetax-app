@@ -1,6 +1,7 @@
 class Dealer extends Object {
 
   String tax_dealer_id;
+  String tax_dealer_name;
   String tax_dealer_code;
   String tax_dealer_password;
 
@@ -25,6 +26,7 @@ class Dealer extends Object {
   Dealer({
 
     this.tax_dealer_id = "",
+    this.tax_dealer_name = "",
     this.tax_dealer_code = "",
     this.tax_dealer_password = "",
 
@@ -46,6 +48,7 @@ class Dealer extends Object {
 
   flush() {
     this.tax_dealer_id = "";
+    this.tax_dealer_name = "";
     this.tax_dealer_code = "";
     this.tax_dealer_password = "";
 
@@ -68,6 +71,7 @@ class Dealer extends Object {
   factory Dealer.fromJson(Map<String, dynamic> json) {
     return new Dealer(
       tax_dealer_id: ((json['tax_dealer_id']).toString()).toString() as String,
+      tax_dealer_name: ((json['tax_dealer_name']).toString()).toString() as String,
       tax_dealer_code: (json['tax_dealer_code']).toString() as String,
       tax_dealer_password: (json['tax_dealer_password']).toString() as String,
 

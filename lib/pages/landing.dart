@@ -55,6 +55,7 @@ _launchInWebViewOrVC(String url) async {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
+          automaticallyImplyLeading: false
       ),
       body: Center(
         child: Column(
@@ -180,6 +181,30 @@ _launchInWebViewOrVC(String url) async {
                 ),
               ],
             ),
+            /*
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Unregistered New', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/unregistered');
+                      },
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
+            */
             Center(
               child: FutureBuilder<String>(
                 future: str,

@@ -37,11 +37,14 @@ print(epayment.tax_type);
       "tax_challan_from_dt": epayment.tax_period_from,
       "tax_challan_to_dt": epayment.tax_period_to,
       "tax_challan_purpose": epayment.purpose,
-      "type_code": epayment.code,
+      //"type_code": epayment.code,
+      "type_code": epayment.tax_type,
       "tax_challan_amount": epayment.amount,
 
-      "created_by":"Suresh",
-      "modified_by":"Suresh",
+      "tax_dealer_id": globals.userid,
+
+      "created_by": globals.userid,
+      "modified_by":"",
       "token":"123",
       "device":"android"
     };
