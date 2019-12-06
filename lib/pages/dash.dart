@@ -1,28 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hp_one/netwoklayer/dealer.dart';
-import 'package:hp_one/netwoklayer/user.dart';
-import 'package:hp_one/netwoklayer/user_api.dart';
+import 'package:hpetax/networklayer/user.dart';
+import 'package:hpetax/networklayer/user_api.dart';
+import 'package:hpetax/util/device_data.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
 import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
+import 'package:toast/toast.dart';
 
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
 
-import 'package:hp_one/globals.dart' as globals;
 
+import 'package:hpetax/globals.dart' as globals;
 
-import 'package:hp_one/util/device_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashPage extends StatefulWidget {
@@ -41,9 +34,11 @@ class _Dash extends State<DashPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     globals.username = prefs.getString('username');
     globals.usertype = prefs.getInt('usertype').toString();
+    globals.userid = prefs.getInt('userid').toString();
 
     print("Dash.dart user name : " + globals.username);
     print("Dash.dart user type : " + globals.usertype);
+    print("Dash.dart user id : " + globals.userid);
   }
 
   /* Start Radio button functionality */
@@ -98,6 +93,13 @@ class _Dash extends State<DashPage> {
       prefs.setString('username', username);
       prefs.setInt('usertype', usertype);
 
+      globals.selectedVehicleNumber = "";
+      globals.selectedTaxType = "";
+
+      var now = new DateTime.now();
+      print(now.millisecondsSinceEpoch);
+      globals.userSession = globals.isLoggedIn + "_" + (now.millisecondsSinceEpoch).toString();
+
       Navigator.pushNamed(context, '/dashboard');
     } else {
       print("in else");
@@ -112,12 +114,12 @@ class _Dash extends State<DashPage> {
       switch (_user.user_type) {
         case 1:
           //Fluttertoast.showToast(msg: 'Correct !',toastLength: Toast.LENGTH_SHORT);
-          Toast.show("Dealer !", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+          //Toast.show("Dealer !", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
           correctScore++;
           break;
         case 2:
           //Fluttertoast.showToast(msg: 'Try again !',toastLength: Toast.LENGTH_SHORT);
-          Toast.show("Employee !", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+          //Toast.show("Employee !", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
           break;
       }
     });
@@ -136,6 +138,14 @@ class _Dash extends State<DashPage> {
       globals.username = "";
       globals.usertype = null;
       globals.userid = null;
+
+      globals.selectedVehicleNumber = "";
+      globals.selectedTaxType = "";
+
+      var now = new DateTime.now();
+      print(now.millisecondsSinceEpoch);
+      globals.userSession = globals.isLoggedIn + "_" + (now.millisecondsSinceEpoch).toString();
+
 
       print("logged out");
     }
@@ -230,7 +240,7 @@ class _Dash extends State<DashPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dash'),
+        title: Text('Dashboard'),
         actions: <Widget>[
           new IconButton(
             icon: new Icon(Icons.power_settings_new),
@@ -295,7 +305,7 @@ class _Dash extends State<DashPage> {
                   ),
                 ],
               ),
-              (globals.usertype == 2) ? new Row(
+              (globals.usertype == "2") ? new Row(
                 children: <Widget>[
                   Expanded(
                     child: Padding(

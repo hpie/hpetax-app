@@ -1,28 +1,21 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hp_one/netwoklayer/dealer.dart';
-import 'package:hp_one/netwoklayer/user.dart';
-import 'package:hp_one/netwoklayer/user_api.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:hpetax/networklayer/user.dart';
+import 'package:hpetax/networklayer/user_api.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:toast/toast.dart';
-
-import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
 import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
 
 import 'package:uuid/uuid.dart';
 import 'package:uuid/uuid_util.dart';
 
-import 'package:hp_one/globals.dart' as globals;
+import 'package:hpetax/globals.dart' as globals;
 
 
-import 'package:hp_one/util/device_data.dart';
+import 'package:hpetax/util/device_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -103,8 +96,8 @@ class _Login extends State<LoginPage> {
       globals.username = username;
       globals.usertype = usertype.toString();
       globals.userid = userid.toString();
-
-      Navigator.pushNamed(context, '/dashboard');
+      print("Logged in : " + username + " || global usertype : " + globals.usertype);
+     Navigator.pushNamed(context, '/dashboard');
     } else {
       print("in else");
     }

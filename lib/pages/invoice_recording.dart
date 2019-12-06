@@ -1,35 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hp_one/netwoklayer/challan.dart';
-import 'package:hp_one/netwoklayer/epayment.dart';
-import 'package:hp_one/netwoklayer/epayment_api.dart';
-import 'package:hp_one/netwoklayer/invoice.dart';
-import 'package:hp_one/netwoklayer/invoice_api.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:hpetax/networklayer/challan.dart';
+import 'package:hpetax/networklayer/epayment_api.dart';
+import 'package:hpetax/networklayer/invoice.dart';
+import 'package:hpetax/networklayer/invoice_api.dart';
+import 'package:intl/intl.dart';
+import 'package:dropdown_formfield/dropdown_formfield.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
-import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
+import 'package:hpetax/globals.dart' as globals;
 
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-import 'package:dropdown_formfield/dropdown_formfield.dart';
-
-import 'package:hp_one/globals.dart' as globals;
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:intl/intl.dart';
-
-
-import 'package:hp_one/util/device_data.dart';
 
 class InvoicePage extends StatefulWidget {
   @override
@@ -91,9 +76,6 @@ class _Invoice extends State<InvoicePage> {
 *  End Variable declarations
 */
 
-
-
-
   Future listTaxItemQueue(String newQuery) async {
     is_loading = true;
     var search = await _epaymentApi.challan_list(newQuery);
@@ -154,9 +136,6 @@ class _Invoice extends State<InvoicePage> {
       },
       itemBuilder: (context, suggestion) {
         return ListTile(
-          //leading: Icon(Icons.shopping_cart),
-          //title: Text(suggestion.id),
-          //subtitle: Text('\$${suggestion.description}'),
           title: Text(suggestion.tax_depositors_name),
         );
       },
@@ -391,6 +370,8 @@ class _Invoice extends State<InvoicePage> {
         ),
         onSaved: (String val) {
           _invoice.vehicle_number = val;
+
+          print("Vehicle number : " + _invoice.vehicle_number);
         },
         controller: vehicle_numberCnt
     );
@@ -540,6 +521,104 @@ class _Invoice extends State<InvoicePage> {
           //fontSize: 15.0,
           decorationStyle: TextDecorationStyle.dotted
       ),
+    );
+
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("Epayment"),
+          //automaticallyImplyLeading:false,
+
+        ),
+        body: new Column(
+            children: <Widget>[
+              new Expanded(
+                  child: new ListView.builder(
+                      itemCount: 1,
+                      itemBuilder: (context, index) {
+                        return Column(
+                            children: <Widget>[
+                              new Form(
+                                  key: _formKey,
+                                  autovalidate: _autoValidate,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      usertypeField,
+                                      //(user_type == 1) ? registeredUsersDropdown :  new SizedBox.shrink(),
+                                      //(user_type == 2) ? new Column(
+                                      new Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            invoiceNoField,
+                                            invoiceDateField,
+                                            invoiceAmountField,
+                                            vehicleNumberField,
+                                            transactionTypeField,
+                                            (user_type == 1) ? consignerGstField :  new SizedBox.shrink(),
+                                            firmNameField,
+                                            firmAddressField,
+                                            consigneeGstField,
+                                            consigneeFirmNameField,
+                                            billToField,
+                                            shipToField,
+                                            //identification_dropdown,
+                                            (user_type == 0) ? Container(
+                                              // padding: EdgeInsets.all(16),
+                                              color: Colors.white,
+                                              child: DropDownFormField(
+                                                titleText: 'Identification Type',
+                                                hintText: 'Please choose one',
+                                                value: _identificationVal,
+                                                onSaved: (value) {
+                                                  setState(() {
+                                                    _identificationVal = value;
+                                                    _invoice.identification_type = value;
+                                                  });
+                                                },
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _identificationVal = value;
+                                                    _invoice.identification_type = value;
+                                                  });
+                                                },
+                                                dataSource: [
+                                                  {
+                                                    "display": "Adhar Card",
+                                                    "value": "adhar",
+                                                  },
+                                                  {
+                                                    "display": "Voting Card",
+                                                    "value": "voting",
+                                                  },
+                                                  {
+                                                    "display": "Driving License",
+                                                    "value": "driving",
+                                                  }
+                                                ],
+                                                textField: 'display',
+                                                valueField: 'value',
+                                              ),
+                                            ) :  new SizedBox.shrink(),
+                                            (user_type == 0) ? identificationNoField :  new SizedBox.shrink(),
+
+                                          ]
+                                      )
+                                      //):  new SizedBox.shrink(),
+                                    ],
+                                  )
+                              ),
+                            ]
+                        );
+                      }
+                  )
+              ),
+              const SizedBox(height: 10),
+              (!isLoading) ? recordButon : CircularProgressIndicator(),
+              const SizedBox(height: 10),
+            ]
+        )
     );
 
     return Scaffold(

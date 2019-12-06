@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unique_identifier/unique_identifier.dart';
-import 'package:hp_one/globals.dart' as globals;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:hpetax/globals.dart' as globals;
 
 Future<String> initUniqueIdentifierState() async {
   String identifier;
@@ -25,28 +24,8 @@ class HomePage extends StatelessWidget {
     globals.username = prefs.getString('username');
     globals.usertype = prefs.getInt('usertype').toString();
 
-    print("hi");
+    //print("hi");
   }
-
-  _launchURL() async {
-    const url = 'http://hpie.in/hpetax/payment.php?reference=1234&amount=22.50&tender_by=suresh&from=12-11-2019&to=20-11-2019';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  //Future<Null> _launchInWebViewOrVC(String url) async {
-_launchInWebViewOrVC(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: true, forceWebView: true);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-
 
 
   @override
@@ -197,6 +176,52 @@ _launchInWebViewOrVC(String url) async {
                       ),
                       onPressed: () {
                         Navigator.pushNamed(context, '/unregistered');
+                      },
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
+            */
+            /*
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Local Test webview', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/widget2');
+                      },
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Test webview', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/widget3');
                       },
                     ),
 

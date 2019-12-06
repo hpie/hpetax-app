@@ -1,30 +1,34 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hp_one/netwoklayer/challan.dart';
-import 'package:hp_one/util/validations.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/epayment.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/epayment_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
-import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:hpetax/networklayer/challan.dart';
+import 'package:hpetax/networklayer/epayment.dart';
+import 'package:hpetax/networklayer/epayment_api.dart';
+import 'package:hpetax/util/device_data.dart';
+import 'package:hpetax/util/validations.dart';
+import 'package:hpetax/globals.dart' as globals;
 
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
+/* ============== Start webview declarations ==================== */
+const kAndroidUserAgent =
+    'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
-import 'package:hp_one/globals.dart' as globals;
+//String selectedUrl = 'https://hpie.in/hpetax/payment.php?id=' + globals.challanId;
 
+String selectedUrl = globals.paymentUrl + globals.challanId;
 
-import 'package:hp_one/util/device_data.dart';
-import 'package:url_launcher/url_launcher.dart';
+// ignore: prefer_collection_literals
+final Set<JavascriptChannel> jsChannels = [
+  JavascriptChannel(
+      name: 'Print',
+      onMessageReceived: (JavascriptMessage message) {
+        print(message.message);
+        //flutterWebviewPlugin.close();
+      }),
+].toSet();
+/* ============== End webview declarations ==================== */
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -39,8 +43,6 @@ class _Payment extends State<PaymentPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-
-
   EpaymentApi _epaymentApi = new EpaymentApi();
   Epayment _epayment = new Epayment();
   CustomValidations _customValidations = new CustomValidations();
@@ -49,7 +51,7 @@ class _Payment extends State<PaymentPage> {
 
   List<Challan> challan_queue;
   bool is_loading = false;
-  bool payment_called = false;
+  bool payment_called = true;
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   List<String> data_items = [];
@@ -62,41 +64,159 @@ class _Payment extends State<PaymentPage> {
   final TextEditingController statusCtrl = new TextEditingController();
   final TextEditingController transactionStatusCtrl = new TextEditingController();
 
+  /* ============== Start webview declarations ==================== */
+  // Instance of WebView plugin
+  final flutterWebViewPlugin = FlutterWebviewPlugin();
 
+  // On destroy stream
+  StreamSubscription _onDestroy;
+
+  // On urlChanged stream
+  StreamSubscription<String> _onUrlChanged;
+
+  // On urlChanged stream
+  StreamSubscription<WebViewStateChanged> _onStateChanged;
+
+  StreamSubscription<WebViewHttpError> _onHttpError;
+
+  StreamSubscription<double> _onProgressChanged;
+
+  StreamSubscription<double> _onScrollYChanged;
+
+  StreamSubscription<double> _onScrollXChanged;
+
+  final _urlCtrl = TextEditingController(text: selectedUrl);
+
+  final _codeCtrl = TextEditingController(text: 'window.navigator.userAgent');
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final _history = [];
+  /* ============== End webview declarations ====================== */
 
   @override
   void initState() {
     super.initState();
-    listTaxItemQueue(globals.challanId);
+    print("payment init called");
+    listTaxItemQueue(globals.challanId, true);
+
+
+
+    /* ============== Start webview Methods ==================== */
+    flutterWebViewPlugin.close();
+
+    _urlCtrl.addListener(() {
+      selectedUrl = _urlCtrl.text;
+    });
+
+    // Add a listener to on destroy WebView, so you can make came actions.
+    _onDestroy = flutterWebViewPlugin.onDestroy.listen((_) {
+      print("before mounted check destroyed");
+      if (mounted) {
+        print("destroyed");
+        // Actions like show a info toast.
+        _scaffoldKey.currentState.showSnackBar(
+            const SnackBar(content: const Text('Webview Destroyed')));
+      }
+    });
+
+    // Add a listener to on url changed
+    _onUrlChanged = flutterWebViewPlugin.onUrlChanged.listen((String url) {
+
+      if (mounted) {
+        setState(() {
+          _history.add('onUrlChanged: $url');
+          print("Url changed : " + url);
+          //print("return url : " + globals.updatepaymentUrl + globals.challanId);
+          /*
+          if(globals.updatepaymentUrl + globals.challanId == url) {
+            flutterWebViewPlugin.close();
+            print("close called");
+          }
+          */
+        });
+      }
+    });
+
+    _onProgressChanged =
+        flutterWebViewPlugin.onProgressChanged.listen((double progress) {
+          if (mounted) {
+            setState(() {
+              _history.add('onProgressChanged: $progress');
+            });
+          }
+        });
+
+    _onScrollYChanged =
+        flutterWebViewPlugin.onScrollYChanged.listen((double y) {
+          if (mounted) {
+            setState(() {
+              _history.add('Scroll in Y Direction: $y');
+            });
+          }
+        });
+
+    _onScrollXChanged =
+        flutterWebViewPlugin.onScrollXChanged.listen((double x) {
+          if (mounted) {
+            setState(() {
+              _history.add('Scroll in X Direction: $x');
+            });
+          }
+        });
+
+    _onStateChanged =
+        flutterWebViewPlugin.onStateChanged.listen((WebViewStateChanged state) {
+
+          print('onStateChanged: ${state.type} ${state.url}');
+          if (mounted) {
+            setState(() {
+              _history.add('onStateChanged: ${state.type} ${state.url}');
+            });
+          }
+        });
+
+    _onHttpError =
+        flutterWebViewPlugin.onHttpError.listen((WebViewHttpError error) {
+          if (mounted) {
+            setState(() {
+              _history.add('onHttpError: ${error.code} ${error.url}');
+            });
+          }
+        });
+
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => load_webview(context));
+    /* ============== End webview Methods ====================== */
   }
 
-  _launchURL() async {
-    String reference = referenceCtrl.text;
-    String amount = amountCtrl.text;
-    String tender_by = tenderByCtrl.text;
-    String from = fromCtrl.text;
-    String to = toCtrl.text;
-
-    String url = globals.paymentUrl + '?reference='+ reference +'&amount='+ amount +'&tender_by='+ tender_by +'&from='+ from +'&to='+ to;
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+  /* ============== Start webview Methods ==================== */
+  void load_webview(context) {
+    Navigator.of(context).pushNamed('/widget');
   }
 
-  Future<Null> _launchInWebViewOrVC(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: true, forceWebView: true);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
+  @override
+  void dispose() {
+    print("dispose called");
+    // Every listener should be canceled, the same should be done with this stream.
+    _onDestroy.cancel();
+    _onUrlChanged.cancel();
+    _onStateChanged.cancel();
+    _onHttpError.cancel();
+    _onProgressChanged.cancel();
+    _onScrollXChanged.cancel();
+    _onScrollYChanged.cancel();
 
-  Future listTaxItemQueue(String newQuery) async {
+    flutterWebViewPlugin.dispose();
+
+    super.dispose();
+  }
+/* ============== End webview Methods ====================== */
+
+  Future listTaxItemQueue(String newQuery, bool is_insert) async {
     is_loading = true;
     print("chalan parameter : " + newQuery);
-    var search = await _epaymentApi.challan_list_for_payment(newQuery);
+    var search = await _epaymentApi.challan_list_for_payment(newQuery, is_insert);
     print(search.list[0].tax_challan_id);
     setState(() {
       is_loading = false;
@@ -109,6 +229,10 @@ class _Payment extends State<PaymentPage> {
       toCtrl.text = search.list[0].tax_challan_to_dt;
       statusCtrl.text = search.list[0].tax_challan_status;
       transactionStatusCtrl.text = search.list[0].tax_transaction_status;
+
+      if(search.list[0].tax_transaction_status == "PENDING" && !is_insert) {
+        payment_called = false;
+      }
     });
   }
 
@@ -240,7 +364,8 @@ class _Payment extends State<PaymentPage> {
               setState(() {
                 //isLoading = true;
                 payment_called = true;
-                _launchURL();
+                //_launchURL();
+                Navigator.of(context).pushNamed('/widget');
               });
               //_validateInputs(context);
               //register_user(context);
@@ -258,7 +383,7 @@ class _Payment extends State<PaymentPage> {
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed: () {
-              listTaxItemQueue(challanIdCnt.text);
+              listTaxItemQueue(challanIdCnt.text, false);
             },
             child: Text("Refresh",
                 textAlign: TextAlign.center,

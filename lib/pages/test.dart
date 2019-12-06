@@ -1,30 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
-import 'package:hp_one/netwoklayer/places_api.dart';
-import 'package:hp_one/netwoklayer/players.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:hpetax/networklayer/commodity.dart';
+import 'package:hpetax/networklayer/commodity_api.dart';
+import 'package:hpetax/networklayer/places_api.dart';
+import 'package:hpetax/networklayer/players.dart';
+import 'package:hpetax/networklayer/tax.dart';
+import 'package:hpetax/networklayer/tax_api.dart';
+import 'package:hpetax/networklayer/taxtype_api.dart';
+import 'package:hpetax/util/device_data.dart';
 import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
-import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
 
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-
-import 'package:hp_one/globals.dart' as globals;
-
-
-import 'package:hp_one/util/device_data.dart';
+import 'package:hpetax/globals.dart' as globals;
 
 class TestPage extends StatefulWidget {
   @override
@@ -45,6 +38,10 @@ class _Test extends State<TestPage> {
   String places = "0";
   String passengers = "0";
   String sourcePlaceId, destinationPlaceId;
+  double smallfontSize = 15;
+  double mediumfontSize = 20;
+  double bigfontSize = 25;
+
 
   List<Tax> tax_queue;
   List<Players> places_list;
@@ -53,6 +50,7 @@ class _Test extends State<TestPage> {
 
   bool is_edit = false;
   bool is_edit_loading = false;
+  bool vehicleIsEnabled = true;
 
   // Text controllers
   TextEditingController sourceLocationCnt = TextEditingController();
@@ -66,11 +64,16 @@ class _Test extends State<TestPage> {
   TextEditingController editTaxTypeCnt = TextEditingController();
   TextEditingController editCommodityCnt = TextEditingController();
 
+  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
   TaxtypeApi _taxtypeApi;
   CommodityApi _commodityApi;
   Tax _tax = new Tax();
   TaxApi _taxApi = new TaxApi();
   PlacesApi _placesApi = new PlacesApi();
+
+  TextStyle contentTxt = TextStyle(fontSize: 16.0);
+  TextStyle labelTxt = TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.grey);
 /*
 *  End Variable declarations
 */
@@ -104,13 +107,13 @@ class _Test extends State<TestPage> {
         child: Scaffold(
           resizeToAvoidBottomInset : true,
           appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.add)),
-                Tab(icon: Icon(Icons.list))
-              ],
-            ),
-            title: (globals.usertype == "") ? Text('Unregistered') : Text('Challan'),
+              bottom: TabBar(
+                tabs: [
+                  Tab(icon: Icon(Icons.add)),
+                  Tab(icon: Icon(Icons.list))
+                ],
+              ),
+              title: (globals.usertype == "") ? Text('Unregistered') : Text('Challan'),
               leading: IconButton(icon:Icon(Icons.arrow_back),
                   onPressed:() {
                     Navigator.pushNamed(context, '/');
@@ -120,17 +123,17 @@ class _Test extends State<TestPage> {
           body: TabBarView(
             children: [
               new ListView(
-            shrinkWrap: true,
-            //padding: EdgeInsets.all(15.0),
-            children: <Widget>[
-              Center(
-                child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: new Form(key: _formKey,child: formUI()),
-                  )
-                //child: new Form(key: _formKey,child: Text("Hello")),
-              )
-              ]
+                  shrinkWrap: true,
+                  //padding: EdgeInsets.all(15.0),
+                  children: <Widget>[
+                    Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: new Form(key: _formKey,child: formUI()),
+                        )
+                      //child: new Form(key: _formKey,child: Text("Hello")),
+                    )
+                  ]
               ),
               new Column(
                 children: <Widget>[
@@ -140,283 +143,319 @@ class _Test extends State<TestPage> {
                         itemBuilder: (context, index) {
 
                           if(tax_queue != null) {
-                            /*
-                    return ListTile(
-                      title: Text('${tax_queue[index].tax_item_id}'),
-                    );
-                    */
-                            return Column(
-                              children: <Widget>[
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                            return Container(
+                                margin: const EdgeInsets.all(15.0),
+                                padding: const EdgeInsets.all(3.0),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(10.0) //                 <--- border radius here
+                                    )
+                                ),
+                                child:  new Column(
                                   children: <Widget>[
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: IconButton(
-                                              icon: Icon(Icons.edit),
-                                              onPressed: () {
-                                                _editQueueItem(tax_queue[index].tax_item_id, context);
-                                              },
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: IconButton(
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () {
-                                                _deleteQueueItem(tax_queue[index].tax_item_id);
-                                              },
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Queue ID :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].tax_item_queue_id,
-                                              style: TextStyle(fontSize: 12.0),
-                                              textAlign: TextAlign.left,
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Tax Type :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].tax_type,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Commodity :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].tax_commodity_name,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Vehicle Number :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].vehicle_number,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Weight :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].weight,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Unit :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].unit,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Quantity :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].quantity,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Source Location :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: IconButton(
+                                                  color: Colors.lightBlue,
+                                                  icon: Icon(Icons.edit),
+                                                  onPressed: () {
+                                                    _editQueueItem(tax_queue[index].tax_item_id, context);
+                                                  },
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: IconButton(
+                                                  color: Colors.black38,
+                                                  icon: Icon(Icons.delete),
+                                                  onPressed: () {
+                                                    _deleteQueueItem(tax_queue[index].tax_item_id);
+                                                  },
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Queue ID :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].tax_item_queue_id,
+                                                  style: contentTxt,
+                                                  textAlign: TextAlign.left,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Tax Type :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].tax_type,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Commodity :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  tax_queue[index].tax_commodity_name,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Vehicle Number :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].vehicle_number,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Weight :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].weight,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Unit :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].unit,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Quantity :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].quantity,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Source Location :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  tax_queue[index].source_location,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                              /*
                                           Padding(
                                             padding:
                                             const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
                                             child: Text(
                                               tax_queue[index].source_location,
-                                              style: TextStyle(fontSize: 12.0),
+                                              style: contentTxt,
                                             ),
                                           )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Destination Location :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
+                                          */
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Destination Location :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Text(
+                                                  tax_queue[index].destination_location,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                              /*
                                           Padding(
                                             padding:
                                             const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
                                             child: Text(
                                               tax_queue[index].destination_location,
-                                              style: TextStyle(fontSize: 12.0),
+                                              style: contentTxt,
                                             ),
                                           )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Distance (in Km within HP) :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].distance,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    ),
-                                    Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: <Widget>[
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              "Total Tax (in Rs.) :",
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                            const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
-                                            child: Text(
-                                              tax_queue[index].total_tax,
-                                              style: TextStyle(fontSize: 12.0),
-                                            ),
-                                          )
-                                        ]
-                                    )
+                                          */
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Distance (in Km within HP) :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].distance,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        ),
+                                        Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  "Total Tax (in Rs.) :",
+                                                  style: labelTxt,
+                                                  textAlign: TextAlign.start,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                const EdgeInsets.fromLTRB(4.0, 6.0, 12.0, 12.0),
+                                                child: Text(
+                                                  tax_queue[index].total_tax,
+                                                  style: contentTxt,
+                                                ),
+                                              )
+                                            ]
+                                        )
 
-                                  ],
-                                ),
+                                      ],
+                                    ),
 /*
                           ],
                         ),
                         */
+                                    /*
                                 Divider(
                                   height: 2.0,
                                   color: Colors.grey,
                                 )
-                              ],
+                                */
+                                  ],
+                                )
                             );
                           } else {
                             return ListTile(
@@ -426,8 +465,32 @@ class _Test extends State<TestPage> {
                         },
                       )
                   ),
+                  const SizedBox(height: 10),
                   new Row(
                     children: <Widget>[
+
+                      Material(
+                        elevation: 5.0,
+                        borderRadius: BorderRadius.circular(30.0),
+                        color: Colors.lightBlueAccent,
+                        child: MaterialButton(
+                          minWidth: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                          onPressed: () {
+                            if(tax_queue != null && tax_queue.length > 0) {
+                              Navigator.pushNamed(context, '/epayment');
+                            } else {
+                              Toast.show("Please add items to queue", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+                            }
+                          },
+                          child: Text("Submit",
+                              textAlign: TextAlign.center,
+                              style: style.copyWith(
+                                  color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+
+                      /*
                       RaisedButton(
                         onPressed: () {
 
@@ -458,9 +521,10 @@ class _Test extends State<TestPage> {
                           ),
                         ),
                       ),
-
+                      */
                     ],
-                  )
+                  ),
+                  const SizedBox(height: 10),
                 ],
               )
 
@@ -541,31 +605,31 @@ class _Test extends State<TestPage> {
   void changedDropDownItem2(String selectedCommodity) {
     print("Called : changedDropDownItem2");
     //if(!is_edit) {
-      getCommodityDetails(selectedCommodity);
-      setState(() {
-        _selectedCommodity = selectedCommodity;
+    getCommodityDetails(selectedCommodity);
+    setState(() {
+      _selectedCommodity = selectedCommodity;
 
-        weight = "0";
-        places = "0";
-        distance = "0";
-        passengers = "0";
+      weight = "0";
+      places = "0";
+      distance = "0";
+      passengers = "0";
 
-        if(_selectedTaxType == "AG") {
-          places = "1";
-          distance = "1";
-        }
+      if(_selectedTaxType == "AG") {
+        places = "1";
+        distance = "1";
+      }
 
-        if(_selectedTaxType == "PTCG") {
-          distance = "1";
-          passengers = "1";
-        }
+      if(_selectedTaxType == "PTCG") {
+        distance = "1";
+        passengers = "1";
+      }
 
-        if(_selectedTaxType == "CGCR") {
-          places = "1";
-          distance = "1";
-        }
-        print(selectedCommodity);
-      });
+      if(_selectedTaxType == "CGCR") {
+        places = "1";
+        distance = "1";
+      }
+      print(selectedCommodity);
+    });
     //}
   }
 
@@ -621,39 +685,36 @@ class _Test extends State<TestPage> {
 
     var search = await _taxApi.list(newQuery);
 
-      setState(() {
-        tax_queue = search.list;
-        if(tax_queue != null) {
-        if (tax_queue.length > 0) {
-          globals.selectedTaxType = tax_queue[0].tax_type;
-          _selectedTaxType = tax_queue[0].tax_type;
-          editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
-          updateCommodityDropdown(_selectedTaxType);
-/*
-          //update field display values
-          weight = "0";
-          places = "0";
-          distance = "0";
-          passengers = "0";
+    setState(() {
+      tax_queue = search.list;
+      //if(tax_queue != null) {
+      // if (tax_queue.length > 0) {
+      if (tax_queue != null && tax_queue.length > 0) {
+        globals.selectedTaxType = tax_queue[0].tax_type;
+        globals.selectedVehicleNumber = tax_queue[0].vehicle_number;
 
-          if(_selectedTaxType == "AG") {
-            places = "1";
-            distance = "1";
-          }
-
-          if(_selectedTaxType == "PTCG") {
-            distance = "1";
-            passengers = "1";
-          }
-
-          if(_selectedTaxType == "CGCR") {
-            places = "1";
-            distance = "1";
-          }
-*/
+        print("check vehicle number : " + tax_queue[0].vehicle_number);
+        if(tax_queue[0].vehicle_number != null && tax_queue[0].vehicle_number != "" && tax_queue.length >= 1) {
+          print("in false");
+          vehicleIsEnabled = false;
+        } else {
+          print("in true");
+          vehicleIsEnabled = true;
         }
-        }
-      });
+        _selectedTaxType = tax_queue[0].tax_type;
+        editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
+
+        //set vehicle number
+        vehicleCnt.text = tax_queue[0].vehicle_number;
+        _tax.vehicle_number = tax_queue[0].vehicle_number;
+        updateCommodityDropdown(_selectedTaxType);
+      } else {
+        globals.selectedTaxType = "";
+        globals.selectedVehicleNumber = "";
+        vehicleIsEnabled = true;
+      }
+      // }
+    });
 
   }
 
@@ -686,6 +747,9 @@ class _Test extends State<TestPage> {
         _selectedTaxType = globals.selectedTaxType;
       } else {
         _selectedTaxType = _dropDownMenuItems[0].value;
+      }
+      if(globals.selectedVehicleNumber != "") {
+        vehicleCnt.text = globals.selectedVehicleNumber;
       }
     });
 
@@ -724,25 +788,25 @@ class _Test extends State<TestPage> {
   Future getCommodityDetails(String newQuery) async {
     print("Called : getCommodityDetails");
     if(!is_edit) {
-    var search = await _commodityApi.getdata(newQuery);
-    commodityObj.data(search);
-    totaltaxCnt.text = commodityObj.tax_commodity_taxcalculation;
+      var search = await _commodityApi.getdata(newQuery);
+      commodityObj.data(search);
+      totaltaxCnt.text = commodityObj.tax_commodity_taxcalculation;
 
-    _tax.tax_type_id = commodityObj.tax_type_id;
-    // _tax.tax_type                   = commodityObj.tax_type_id;
-    _tax.tax_commodity_id = commodityObj.tax_commodity_id;
-    _tax.tax_commodity_name = commodityObj.tax_commodity_name;
-    _tax.tax_commodity_description = commodityObj.tax_commodity_description;
-    _tax.unit = commodityObj.tax_commodity_unit_measure;
+      _tax.tax_type_id = commodityObj.tax_type_id;
+      // _tax.tax_type                   = commodityObj.tax_type_id;
+      _tax.tax_commodity_id = commodityObj.tax_commodity_id;
+      _tax.tax_commodity_name = commodityObj.tax_commodity_name;
+      _tax.tax_commodity_description = commodityObj.tax_commodity_description;
+      _tax.unit = commodityObj.tax_commodity_unit_measure;
 
-    setState(() {
-      if (_selectedTaxType == "AG") {
-        weight = "1";
-      } else {
-        weight = "0";
-      }
-    });
-  }
+      setState(() {
+        if (_selectedTaxType == "AG") {
+          weight = "1";
+        } else {
+          weight = "0";
+        }
+      });
+    }
     if(is_edit) {
       //set_edit_values();
     }
@@ -831,7 +895,10 @@ class _Test extends State<TestPage> {
 
   }
 
-
+  double dp(double val, int places){
+    double mod = pow(10.0, places);
+    return ((val * mod).round().toDouble() / mod);
+  }
 
   clear_fields() {
 
@@ -855,8 +922,6 @@ class _Test extends State<TestPage> {
   Future add_tax(context) async {
     var response;
 
-    //response = await _taxApi.add(_tax);
-    ///*
     if(!is_edit) {
       print("edit false");
       Tax.item_queue_id++;
@@ -865,8 +930,7 @@ class _Test extends State<TestPage> {
       print("edit true");
       response = await _taxApi.update(_tax);
     }
-    //*/
-    //print(Tax.item_queue_id);
+
 
     Toast.show(response.message, context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
 
@@ -879,30 +943,6 @@ class _Test extends State<TestPage> {
     } else {
       print("in else");
     }
-
-
-    //Alert(context: context, title: "RFLUTTER", desc: "Flutter is awesome.").show();
-    //Alert.toast(context,"Very long toast",position: ToastPosition.bottom, duration: ToastDuration.long);
-    /*
-    if(response.success) {
-      setState(() {
-        // listTaxItemQueue("");
-      });
-    } else {
-
-    }
-    */
-
-    /*
-
-    */
-    /*
-    print("==========In add =================");
-    print(_tax.total_tax);
-    if(response.success) {
-      clear_fields();
-    }
-    */
   }
 
   AutoCompleteTextField searchTextField;
@@ -912,84 +952,11 @@ class _Test extends State<TestPage> {
 
   final TextEditingController _typeAheadController = TextEditingController();
   String _selectedCity;
-/*
-  List<String> _listViewData = [
-    "A List View with many Text - Here's one!",
-    "A List View with many Text - Here's another!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-    "A List View with many Text - Here's more!",
-  ];
 
-  Widget user_row(Players player) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(
-          player.description,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        SizedBox(
-          width: 10.0,
-        ),
-        Text(
-          player.place_id,
-        ),
-      ],
-    );
-  }
-
-  void getUsers(text) async {
-    try {
-      final response =
-      await http.get("https://jsonplaceholder.typicode.com/users");
-      if (response.statusCode == 200) {
-        player = loadUsers(response.body);
-        print('Users: ${player.length}');
-        setState(() {
-          loading = false;
-        });
-      } else {
-        print("Error getting users.");
-      }
-    } catch (e) {
-      print("Error getting users.");
-    }
-  }
-
-  static List<Players> loadUsers(String jsonString) {
-    final parsed = json.decode(jsonString).cast<Map<String, dynamic>>();
-    return parsed.map<Players>((json) => Players.fromJson(json)).toList();
-  }
-  */
 
   Widget formUI() {
-
-
-
     List<String> source_places = [];
     final TextEditingController sourcePlacesCtrl = new TextEditingController();
-    /*
-    final sourcePlacesFilterField = new TextField(
-      controller: sourcePlacesCtrl,
-      onTap: () async {
-        final Departments deptName = await _asyncSimpleDialog(context);
-        print("Selected Departement is $deptName");
-      },
-      onSubmitted: (text) {
-        // litems.add(text);
-        getPlaces(text);
-        sourcePlacesCtrl.clear();
-        setState(() {});
-      },
-    );
-    */
-
-
 
     Widget sourceDropdown = TypeAheadFormField(
       textFieldConfiguration: TextFieldConfiguration(
@@ -1024,6 +991,7 @@ class _Test extends State<TestPage> {
         if (value.isEmpty) {
           return 'Please select a city';
         }
+        return "";
       },
       onSaved: (value) => _selectedCity = value,
     );
@@ -1071,18 +1039,20 @@ class _Test extends State<TestPage> {
           alignment: Alignment.topLeft,
           child: Text(
             "Tax Type",
-            style: TextStyle(fontSize: 15,
-                fontWeight:FontWeight.bold),
+            style: TextStyle(
+                fontSize: smallfontSize,
+                fontWeight:FontWeight.bold
+            ),
           ),
         ),
-    (!is_edit && globals.selectedTaxType == "") ? new DropdownButton(
+        (!is_edit && globals.selectedTaxType == "") ? new DropdownButton(
           value: _selectedTaxType,
           items: _dropDownMenuItems,
           onChanged: changedDropDownItem,
           isExpanded: true,
           style: new TextStyle(color: Colors.black,
               fontWeight: FontWeight.normal,
-              fontSize: 10.0,
+              fontSize: mediumfontSize,
               decorationStyle: TextDecorationStyle.dotted),
 
         ) : new TextField(
@@ -1090,6 +1060,9 @@ class _Test extends State<TestPage> {
               filled: true,
               fillColor: Colors.grey,
             ),
+            style: TextStyle(
+                fontSize: smallfontSize,
+                fontWeight:FontWeight.bold),
             enabled : false,
             controller: editTaxTypeCnt
         ),
@@ -1097,7 +1070,7 @@ class _Test extends State<TestPage> {
           alignment: Alignment.topLeft,
           child: Text(
             "Commodity / Description :",
-            style: TextStyle(fontSize: 15,
+            style: TextStyle(fontSize: smallfontSize,
                 fontWeight:FontWeight.bold),
           ),
         ),
@@ -1108,18 +1081,18 @@ class _Test extends State<TestPage> {
           isExpanded: true,
           style: new TextStyle(color: Colors.black,
               fontWeight: FontWeight.normal,
-              fontSize: 15.0,
+              fontSize: mediumfontSize,
               decorationStyle: TextDecorationStyle.dotted),
         ) : new TextField(
-        decoration: new InputDecoration(hintText: "Commodity",
-          filled: true,
-          fillColor: Colors.grey,
-        ),
-        enabled : false,
-        controller: editCommodityCnt
+            decoration: new InputDecoration(hintText: "Commodity",
+              filled: true,
+              fillColor: Colors.grey,
+            ),
+            enabled : false,
+            controller: editCommodityCnt
         ),
 
-    (weight == "1") ? Row(
+        (weight == "1") ? Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             new Flexible(
@@ -1133,8 +1106,29 @@ class _Test extends State<TestPage> {
                     keyboardType: TextInputType.number,
                     controller: weightCnt,
                     onChanged: (text) {
-                      totaltaxCnt.text = (double.parse(text) * double.parse(commodityObj.tax_commodity_taxcalculation)).toString();
+                      //totaltaxCnt.text = (double.parse(text) * double.parse(commodityObj.tax_commodity_taxcalculation)).toString();
+                      //_tax.weight = text;
+
+                      double single_price = commodityObj.tax_commodity_rate / commodityObj.tax_commodity_rate_unit;
+                      totaltaxCnt.text = (dp(double.parse(text) * single_price, 2 )).toString();
                       _tax.weight = text;
+
+                      /*
+                      int full_count = (double.parse(text) / commodityObj.tax_commodity_rate_unit).toInt();
+
+                      int reminder_count = (double.parse(text) % commodityObj.tax_commodity_rate_unit).toInt();
+
+                      reminder_count = (reminder_count > 0) ? 1 : 0;
+                      totaltaxCnt.text = (commodityObj.tax_commodity_rate * (full_count+reminder_count) ).toString();
+                      _tax.weight = text;
+
+                      print("weight changed calculation called : ");
+
+                      print("full_count : " + full_count.toString());
+                      print("reminder_count : " + reminder_count.toString());
+
+                      print((double.parse(text) * (full_count+reminder_count) ).toString());
+                      */
                     }
                 ),
               ),
@@ -1174,6 +1168,7 @@ class _Test extends State<TestPage> {
 
         (places == "1") ? sourceDropdown : new SizedBox.shrink(),
         (places == "1") ? destinationDropdown : new SizedBox.shrink(),
+        /*
         (distance == "1") ? new TextField(
           decoration: new InputDecoration(hintText: "Distance (in Km) within HP"),
           controller: distanceCnt,
@@ -1188,6 +1183,7 @@ class _Test extends State<TestPage> {
           _tax.quantity = text;
           },
         ) : new SizedBox.shrink(),
+
         new TextField(
           decoration: new InputDecoration(hintText: "Vehicle Number"),
           controller: vehicleCnt,
@@ -1195,6 +1191,7 @@ class _Test extends State<TestPage> {
             _tax.vehicle_number = text;
           }
         ),
+
         new TextField(
           decoration: new InputDecoration(hintText: "Total Tax (In Rs.)"),
           controller: totaltaxCnt,
@@ -1202,87 +1199,114 @@ class _Test extends State<TestPage> {
             _tax.total_tax = text;
           }
         ),
+        */
+
+
+        (distance == "1") ? new TextFormField(
+            decoration: new InputDecoration(
+              labelText: 'Distance (in Km) within HP',
+            ),
+            onChanged: (String val) {
+              _tax.distance = val;
+            },
+            controller: distanceCnt
+        ) : new SizedBox.shrink(),
+        (passengers == "1") ? new TextFormField(
+            decoration: new InputDecoration(
+              labelText: 'No. of Passenger',
+            ),
+            onChanged: (String val) {
+              _tax.quantity = val;
+            },
+            controller: passengersCnt
+        ) : new SizedBox.shrink(),
+        TextFormField(
+            decoration: new InputDecoration(
+              labelText: 'Vehicle Number',
+            ),
+            enabled : vehicleIsEnabled,
+            onChanged: (String val) {
+              _tax.vehicle_number = val;
+            },
+            controller: vehicleCnt
+        ),
+        TextFormField(
+            decoration: new InputDecoration(
+              labelText: 'Total Tax (In Rs.)',
+            ),
+            enabled : false,
+            onChanged: (String val) {
+              _tax.total_tax = val;
+            },
+            controller: totaltaxCnt
+        ),
+
         const SizedBox(height: 30),
-        (!is_edit) ? RaisedButton(
-          onPressed: () {
-            _tax.total_tax = totaltaxCnt.text;
-            print("total Tax : " + _tax.total_tax);
+        (!is_edit) ? Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(30.0),
+          color: Colors.lightBlueAccent,
+          child: MaterialButton(
+            minWidth: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+            onPressed: () {
+              _tax.total_tax = totaltaxCnt.text;
+              print("total Tax : " + _tax.total_tax);
 
-            add_tax(context);
-
-          },
-          textColor: Colors.white,
-          padding: const EdgeInsets.all(0.0),
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: <Color>[
-                  Color(0xFF0D47A1),
-                  Color(0xFF1976D2),
-                  Color(0xFF42A5F5),
-                ],
-              ),
-            ),
-            padding: const EdgeInsets.all(10.0),
-            child: const Text(
-                'Add',
-                style: TextStyle(fontSize: 20)
-            ),
+              add_tax(context);
+            },
+            child: Text("Add to queue",
+                textAlign: TextAlign.center,
+                style: style.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ) : new SizedBox.shrink(),
-    (is_edit) ? new Row(
+
+        (is_edit) ? new Row (
           children: <Widget>[
-            RaisedButton(
-              onPressed: () {
-                _tax.total_tax = totaltaxCnt.text;
-                print(_tax.tax_item_id);
+            Expanded(
+              child: Material(
+                elevation: 5.0,
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.lightBlueAccent,
+                child: MaterialButton(
+                  minWidth: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  onPressed: () {
+                    _tax.total_tax = totaltaxCnt.text;
+                    print(_tax.tax_item_id);
 
-                add_tax(context);
-
-              },
-              textColor: Colors.white,
-              padding: const EdgeInsets.all(0.0),
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: <Color>[
-                      Color(0xFF0D47A1),
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
-                    ],
-                  ),
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: const Text(
-                    'Update',
-                    style: TextStyle(fontSize: 20)
+                    add_tax(context);
+                    setState(() {
+                      is_edit = false;
+                    });
+                    clear_fields();
+                  },
+                  child: Text("Update",
+                      textAlign: TextAlign.center,
+                      style: style.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
-            RaisedButton(
-              onPressed: () {
-                setState(() {
-                  is_edit = false;
-                });
-                clear_fields();
-
-              },
-              textColor: Colors.white,
-              padding: const EdgeInsets.all(0.0),
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: <Color>[
-                      Color(0xFF0D47A1),
-                      Color(0xFF1976D2),
-                      Color(0xFF42A5F5),
-                    ],
-                  ),
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: const Text(
-                    'Cancle',
-                    style: TextStyle(fontSize: 20)
+            Expanded(
+              child: Material(
+                elevation: 5.0,
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.grey,
+                child: MaterialButton(
+                  minWidth: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  onPressed: () {
+                    setState(() {
+                      is_edit = false;
+                    });
+                    clear_fields();
+                  },
+                  child: Text("Cancel",
+                      textAlign: TextAlign.center,
+                      style: style.copyWith(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),

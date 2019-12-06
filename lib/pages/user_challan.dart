@@ -1,29 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hp_one/netwoklayer/challan.dart';
-import 'package:hp_one/netwoklayer/epayment.dart';
-import 'package:hp_one/netwoklayer/epayment_api.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:hpetax/networklayer/challan.dart';
+import 'package:hpetax/networklayer/epayment_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
 import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
 
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-
-import 'package:hp_one/globals.dart' as globals;
-
-
-import 'package:hp_one/util/device_data.dart';
+import 'package:hpetax/globals.dart' as globals;
 
 class UserchallanPage extends StatefulWidget {
   @override

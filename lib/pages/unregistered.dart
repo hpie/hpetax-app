@@ -3,29 +3,22 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
-import 'package:hp_one/netwoklayer/places_api.dart';
-import 'package:hp_one/netwoklayer/players.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:hpetax/networklayer/commodity.dart';
+import 'package:hpetax/networklayer/commodity_api.dart';
+import 'package:hpetax/networklayer/places_api.dart';
+import 'package:hpetax/networklayer/players.dart';
+import 'package:hpetax/networklayer/tax.dart';
+import 'package:hpetax/networklayer/tax_api.dart';
+import 'package:hpetax/networklayer/taxtype_api.dart';
+import 'package:hpetax/util/device_data.dart';
 import 'package:toast/toast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:hp_one/netwoklayer/tax.dart';
-import 'package:hp_one/netwoklayer/taxtype_api.dart';
-import 'package:hp_one/netwoklayer/commodity_api.dart';
-import 'package:hp_one/netwoklayer/tax_api.dart';
-import 'package:hp_one/netwoklayer/commodity.dart';
 import 'package:http/http.dart' as http;
-import 'package:hp_one/model/post.dart';
 
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-
-import 'package:hp_one/globals.dart' as globals;
-
-
-import 'package:hp_one/util/device_data.dart';
+import 'package:hpetax/globals.dart' as globals;
 
 class UnregisteredPage extends StatefulWidget {
   @override
@@ -634,6 +627,7 @@ class _Unregistered extends State<UnregisteredPage> {
         if(tax_queue != null) {
         if (tax_queue.length > 0) {
           globals.selectedTaxType = tax_queue[0].tax_type;
+          globals.selectedVehicleNumber = tax_queue[0].tax_type;
           _selectedTaxType = tax_queue[0].tax_type;
           editTaxTypeCnt.text = get_txtype_from_code(_selectedTaxType);
           updateCommodityDropdown(_selectedTaxType);

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unique_identifier/unique_identifier.dart';
-import 'package:hp_one/globals.dart' as globals;
+
+import 'package:hpetax/globals.dart' as globals;
 
 class DashboardPage extends StatelessWidget {
 
