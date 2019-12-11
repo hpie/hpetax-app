@@ -117,10 +117,19 @@ class _Epayment extends State<EpaymentPage> {
     isLoading = false;
     getPaymentData("");
 
+    if(globals.username != "" && globals.username != null) {
+      print("User name : " + globals.username);
+      getUserData(globals.userid);
+      dealerTypeCnt.text = "Registered";
+    } else {
+      dealerTypeCnt.text = "Unregistered";
+    }
+    /*
     if(globals.username != "") {
       getUserData(globals.userid);
     }
     dealerTypeCnt.text = (globals.username != "") ? "Registered" : "Unregistered";
+    */
     // =========== test purpose ===============
     /*
     var now1 = new DateTime.now();
@@ -385,7 +394,7 @@ class _Epayment extends State<EpaymentPage> {
                         minWidth: MediaQuery.of(context).size.width,
                         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/test');
+                          Navigator.pushNamed(context, '/epayment_form');
                         },
                         child: Text("Back",
                             textAlign: TextAlign.center,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:hpetax/pages/challan.dart';
 import 'package:hpetax/pages/dash.dart';
+import 'package:hpetax/pages/epaymentform.dart';
 import 'package:hpetax/pages/invoice_recording.dart';
 import 'package:hpetax/pages/landing.dart';
 import 'package:hpetax/pages/login.dart';
@@ -45,6 +46,7 @@ void main() {
       '/register': (context) => RegisterPage(),
       '/epayment': (context) => EpaymentPage(),
       '/payment': (context) => PaymentPage(),
+      '/epayment_form': (context) => EpaymentformPage(),
       '/widget': (_) {
         return WebviewScaffold(
           url: selectedUrl,

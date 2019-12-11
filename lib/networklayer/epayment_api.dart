@@ -145,9 +145,9 @@ print(epayment.tax_type);
         body: json.encode(match),
         encoding: Encoding.getByName("utf-8")).then((dynamic res) {
 
-      //print("=======challan initial data=======");
-      //print(res);
-      //print("=======challan initial data=======");
+      print("=======challan initial data=======");
+      print(res);
+      print("=======challan initial data=======");
       //var results = Epayment.fromJson(res["Result"]);
 
       //results.status = 200;

@@ -402,7 +402,7 @@ class _Payment extends State<PaymentPage> {
             minWidth: MediaQuery.of(context).size.width,
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed: () {
-              Navigator.pushNamed(context, '/test');
+              Navigator.pushNamed(context, '/epayment_form');
             },
             child: Text("Back",
                 textAlign: TextAlign.center,

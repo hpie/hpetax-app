@@ -340,7 +340,7 @@ class _Dash extends State<DashPage> {
                           child: new Text('Tax Challan', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/test');
+                          Navigator.pushNamed(context, '/epayment_form');
                         },
                       ),
 

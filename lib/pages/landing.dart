@@ -138,6 +138,7 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
+            /*
             new Row(
               children: <Widget>[
                 Expanded(
@@ -153,6 +154,29 @@ class HomePage extends StatelessWidget {
                       ),
                       onPressed: () {
                         Navigator.pushNamed(context, '/test');
+                      },
+                    ),
+
+                  ),
+                ),
+              ],
+            ),
+            */
+            new Row(
+              children: <Widget>[
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: FlatButton(
+                      child: new Container(
+                        alignment: Alignment.center,
+                        height: 50.0,
+                        width: 200.0,
+                        decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                        child: new Text('Unregistered', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/epayment_form');
                       },
                     ),
 

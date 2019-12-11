@@ -151,9 +151,14 @@ class _Invoice extends State<InvoicePage> {
         if(value.isEmpty) {
           return 'Please select a city';
         }
+        return "";
       },
       //onSaved: (value) => _selectedCity = value,
     );
+
+    //=====================Pdf code========================================
+
+    //=============================================================
 
     Future record_invoice(context) async {
       var response;
