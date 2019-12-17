@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:hpetax/model/Invoicemodel.dart';
 import 'package:hpetax/networklayer/user.dart';
 
 import 'basemodel.dart';
@@ -99,6 +100,40 @@ class UserApi {
       */
       //results.status = 200;
       return res;
+    });
+  }
+
+  Future<dynamic> get_dealer(String dealerid) {
+    String BASE_TOKEN_URL = NetworkUtil.BASE_URL2 + "tax_user/get_dealer";
+
+    var match = {
+      "dealerid" : dealerid,
+      "token": "123",
+      "device": "android",
+    };
+
+    print(match);
+
+    return _netUtil.post(BASE_TOKEN_URL,
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: json.encode(match),
+        encoding: Encoding.getByName("utf-8")).then((dynamic res) {
+
+      print("====User api===22222222222=======");
+      print(res);
+      print("=======2222222222=======");
+
+      var results = new InvoiceModel.searchResult(res["Result"]);
+      // /*
+      print("====User api===22222222222=======");
+      print(results.list);
+      print("=======2222222222=======");
+
+      results.status = 200;
+      return results.list;
     });
   }
 }

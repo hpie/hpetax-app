@@ -305,6 +305,28 @@ class _Dash extends State<DashPage> {
                   ),
                 ],
               ),
+              new Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: FlatButton(
+                        child: new Container(
+                          alignment: Alignment.center,
+                          height: 50.0,
+                          width: 200.0,
+                          decoration: new BoxDecoration( color: Colors.lightBlue, borderRadius: new BorderRadius.circular(10.0)),
+                          child: new Text('Search Invoice', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/record_invoice');
+                        },
+                      ),
+
+                    ),
+                  ),
+                ],
+              ),
               (globals.usertype == "2") ? new Row(
                 children: <Widget>[
                   Expanded(

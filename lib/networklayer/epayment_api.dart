@@ -249,12 +249,17 @@ print(epayment.tax_type);
         },
         body: json.encode(match),
         encoding: Encoding.getByName("utf-8")).then((dynamic res) {
+
+      print("====epayment api===results=======");
+      print(res);
+      print("=======results=======");
+
       var results = new ChallanitemModel.searchResult(res["Result"]);
-/*
+
+      print("====epayment api===results=======");
+      print(results.list);
       print("=======results=======");
-      print(results);
-      print("=======results=======");
-*/
+
       results.status = 200;
       return results.list;
     });

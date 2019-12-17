@@ -22,3 +22,6 @@ String last_login = "";
 double smallfontSize = 15;
 double mediumfontSize = 20;
 double bigfontSize = 25;
+
+String invoice_recording_user_type = "";
+String invoice_recording_user_id = "";

@@ -7,6 +7,7 @@ import 'package:hpetax/pages/invoice_recording.dart';
 import 'package:hpetax/pages/landing.dart';
 import 'package:hpetax/pages/login.dart';
 import 'package:hpetax/pages/payment.dart';
+import 'package:hpetax/pages/record_invoice.dart';
 import 'package:hpetax/pages/register.dart';
 import 'package:hpetax/pages/test.dart';
 import 'package:hpetax/pages/unregistered.dart';
@@ -40,6 +41,7 @@ void main() {
       '/unregistered': (context) => UnregisteredPage(),
       '/dashboard': (context) => DashPage(),
       '/invoice_recording': (context) => InvoicePage(),
+      '/record_invoice': (context) => RecordinvoicePage(),
       '/user_challan': (context) => UserchallanPage(),
       '/test': (context) => TestPage(),
       '/login': (context) => LoginPage(),

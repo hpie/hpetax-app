@@ -5,6 +5,7 @@ import 'package:hpetax/networklayer/challan.dart';
 import 'package:hpetax/networklayer/epayment_api.dart';
 import 'package:hpetax/networklayer/invoice.dart';
 import 'package:hpetax/networklayer/invoice_api.dart';
+import 'package:hpetax/networklayer/user_api.dart';
 import 'package:intl/intl.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -47,6 +48,7 @@ class _Invoice extends State<InvoicePage> {
 
   List<Challan> tax_queue;
   EpaymentApi _epaymentApi = new EpaymentApi();
+  UserApi _userApi = new UserApi();
   bool is_loading = false;
 
   Invoice invoice = new Invoice();
@@ -56,6 +58,7 @@ class _Invoice extends State<InvoicePage> {
 
   TextEditingController invoice_noCnt = TextEditingController();
   TextEditingController invoiceDateCnt = TextEditingController();
+  TextEditingController invoiceInspectedDate = TextEditingController();
   TextEditingController invoice_amountCnt = TextEditingController();
   TextEditingController vehicle_numberCnt = TextEditingController();
   TextEditingController transaction_typeCnt = TextEditingController();
@@ -66,6 +69,7 @@ class _Invoice extends State<InvoicePage> {
   TextEditingController consignee_firm_nameCnt = TextEditingController();
   TextEditingController bill_toCnt = TextEditingController();
   TextEditingController ship_toCnt = TextEditingController();
+  TextEditingController identificationTypeCnt = TextEditingController();
   TextEditingController identificationNoCnt = TextEditingController();
 
   bool isLoading;
@@ -95,6 +99,67 @@ class _Invoice extends State<InvoicePage> {
     super.initState();
     _identificationVal = '';
     _invoice.is_registered = "1";
+
+    apply_values(true);
+
+    if(globals.invoice_recording_user_type != "" && globals.invoice_recording_user_id != "") {
+      get_user();
+    }
+  }
+
+  Future get_user() async {
+    print(globals.invoice_recording_user_type + " ||| " + globals.invoice_recording_user_id);
+    var response = await _invoiceApi.get_record(globals.invoice_recording_user_type, "", globals.invoice_recording_user_id);
+
+    if(response["success"] == true) {
+      apply_values(true);
+
+      setState(() {
+        user_type = (globals.invoice_recording_user_type == "registered") ? 1 : 0;
+      });
+      //invoice_noCnt.text = response["Result"]["invoice_no"];
+      //invoiceDateCnt.text = response["Result"].invoice_no;
+      //invoiceInspectedDate.text = response["Result"].invoice_date;
+      //invoice_amountCnt.text = response["Result"].["invoice_amount"];
+      vehicle_numberCnt.text = response["Result"]["vehicle_number"];
+      //transaction_typeCnt.text = response["Result"].transaction_type;
+      consigner_gstCnt.text = response["Result"]["consigner_gst"];
+      firm_nameCnt.text = response["Result"]["consigner_firm_name"];
+      firm_addressCnt.text = response["Result"]["consigner_firm_address"];
+      consignee_gstCnt.text = response["Result"]["consignee_gst"];
+      consignee_firm_nameCnt.text = response["Result"]["consignee_firm_name"];
+      //bill_toCnt.text = response["Result"].consignee_bill_to;
+      //ship_toCnt.text = response["Result"].consignee_ship_to;
+      _identificationVal = response["Result"]["identification_type"];
+      identificationNoCnt.text = response["Result"]["identification_number"];
+
+      print("In if ");
+
+      globals.invoice_recording_user_type = "";
+      globals.invoice_recording_user_id = "";
+    } else {
+      print("In else ");
+      apply_values(true);
+    }
+  }
+  void apply_values(is_empty) {
+    //challanFilterCnt.text = (is_empty) ? "" : "";
+    //registeredUsersCnt.text = (is_empty) ? "" : "";
+
+    invoice_noCnt.text = (is_empty) ? "" : "INC1234";
+    invoiceDateCnt.text = (is_empty) ? "" : "2019-12-10";
+    invoiceInspectedDate.text = (is_empty) ? "" : "2019-12-16";
+    invoice_amountCnt.text = (is_empty) ? "" : "2000";
+    vehicle_numberCnt.text = (is_empty) ? "" : "vehicle number";
+    transaction_typeCnt.text = (is_empty) ? "" : "transaction type";
+    consigner_gstCnt.text = (is_empty) ? "" : "consigner gst";
+    firm_nameCnt.text = (is_empty) ? "" : "firm name";
+    firm_addressCnt.text = (is_empty) ? "" : "firm address";
+    consignee_gstCnt.text = (is_empty) ? "" : "consignee gst";
+    consignee_firm_nameCnt.text = (is_empty) ? "" : "consignee firm name";
+    bill_toCnt.text = (is_empty) ? "" : "bill to";
+    ship_toCnt.text = (is_empty) ? "" : "ship to";
+    identificationNoCnt.text = (is_empty) ? "" : "identificationNo";
   }
 
 
@@ -128,31 +193,44 @@ class _Invoice extends State<InvoicePage> {
       textFieldConfiguration: TextFieldConfiguration(
           controller: registeredUsersCnt,
           decoration: InputDecoration(
-              labelText: 'Source'
+              labelText: (user_type == 0) ? 'Dealer Unique Code' : 'Consigner GST',
           )
       ),
       suggestionsCallback: (pattern) async {
-        return await _epaymentApi.challan_user_list(pattern);;
+        //return await _epaymentApi.challan_user_list(pattern);
+        if(user_type == 1) {
+          return await _epaymentApi.challan_user_list(pattern);
+        } else {
+          return await _userApi.get_dealer(pattern);
+        }
       },
       itemBuilder: (context, suggestion) {
+
+        //print(suggestion);
         return ListTile(
-          title: Text(suggestion.tax_depositors_name),
+          //title: Text(suggestion.tax_depositors_name),
+          title: (user_type == 1) ? Text(suggestion.tax_depositors_name) : Text(suggestion.unique_id),
+          //title: Text("Suresh"),
         );
       },
       transitionBuilder: (context, suggestionsBox, controller) {
         return suggestionsBox;
       },
       onSuggestionSelected: (suggestion) {
-        registeredUsersCnt.text = suggestion.tax_depositors_name;
-        //// _tax.source_location = suggestion.description;
-        print(suggestion.tax_depositors_name);
+        registeredUsersCnt.text = suggestion.unique_id;
+        firm_nameCnt.text = suggestion.firm_name;
+        firm_addressCnt.text = suggestion.firm_address;
+        //_tax.source_location = suggestion.description;
+        ///print(suggestion.tax_depositors_name);
       },
+        /*
       validator: (value) {
         if(value.isEmpty) {
           return 'Please select a city';
         }
         return "";
       },
+      */
       //onSaved: (value) => _selectedCity = value,
     );
 
@@ -174,6 +252,7 @@ class _Invoice extends State<InvoicePage> {
 
       invoice_noCnt.text = "";
       invoiceDateCnt.text = "";
+      invoiceInspectedDate.text = "";
       invoice_amountCnt.text = "";
       vehicle_numberCnt.text = "";
       transaction_typeCnt.text = "";
@@ -335,7 +414,7 @@ class _Invoice extends State<InvoicePage> {
       controller: invoiceDateCnt,
       validator: validateName,
       onSaved: (String val) {
-        _invoice.invoice_no = val;
+        _invoice.invoice_date = val;
       },
       onTap: () {
         DatePicker.showDatePicker(context,
@@ -354,6 +433,34 @@ class _Invoice extends State<InvoicePage> {
       },
       decoration: InputDecoration(
           labelText: 'Invoice Date'
+      ),
+    );
+
+    final invoiceInspectedDateField = TextFormField(
+      obscureText: false,
+      //style: style,
+      controller: invoiceInspectedDate,
+      validator: validateName,
+      onSaved: (String val) {
+        _invoice.inspected_date = val;
+      },
+      onTap: () {
+        DatePicker.showDatePicker(context,
+            showTitleActions: true,
+            minTime: DateTime(1940, 1, 1),
+            // maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+            maxTime: DateTime(2099, 6, 7), onChanged: (date) {
+              print('change $date');
+              invoiceInspectedDate.text = date.toString();
+              _invoice.inspected_date = date.toString();
+            }, onConfirm: (date) {
+              invoiceInspectedDate.text = format_date(date);
+              _invoice.inspected_date = format_date(date);
+              print('confirm $date');
+            }, currentTime: DateTime.now());
+      },
+      decoration: InputDecoration(
+          labelText: 'Invoice Inspected Date'
       ),
     );
 
@@ -406,7 +513,7 @@ class _Invoice extends State<InvoicePage> {
           labelText: 'Firm Name',
         ),
         onSaved: (String val) {
-          _invoice.firm_name = val;
+          _invoice.consigner_firm_name = val;
         },
         controller: firm_nameCnt
     );
@@ -417,7 +524,7 @@ class _Invoice extends State<InvoicePage> {
           labelText: 'Firm Address',
         ),
         onSaved: (String val) {
-          _invoice.firm_address = val;
+          _invoice.consigner_firm_address = val;
         },
         controller: firm_addressCnt
     );
@@ -449,7 +556,7 @@ class _Invoice extends State<InvoicePage> {
           labelText: 'Bill To',
         ),
         onSaved: (String val) {
-          _invoice.bill_to = val;
+          _invoice.consignee_bill_to = val;
         },
         controller: bill_toCnt
     );
@@ -459,7 +566,7 @@ class _Invoice extends State<InvoicePage> {
           labelText: 'Ship To',
         ),
         onSaved: (String val) {
-          _invoice.ship_to = val;
+          _invoice.consignee_ship_to = val;
         },
         controller: ship_toCnt
     );
@@ -528,6 +635,52 @@ class _Invoice extends State<InvoicePage> {
       ),
     );
 
+    //-------------------unique id dropdown----------------------
+    /*
+    String _selectedCity;
+    List<String> source_places = [];
+    final TextEditingController sourcePlacesCtrl = new TextEditingController();
+    TextEditingController sourceLocationCnt = TextEditingController();
+    UserApi _userApi = new UserApi();
+    int dealerUniqueId;
+
+    Widget dealerDropdown = TypeAheadFormField(
+      textFieldConfiguration: TextFieldConfiguration(
+          controller: sourceLocationCnt,
+          decoration: InputDecoration(
+              labelText: 'Source'
+          )
+      ),
+      suggestionsCallback: (pattern) async {
+        print("keyup : " + pattern);
+        return await _userApi.get_dealer(pattern);
+      },
+      itemBuilder: (context, suggestion) {
+        return ListTile(
+          title: Text(suggestion.description),
+        );
+      },
+      transitionBuilder: (context, suggestionsBox, controller) {
+        return suggestionsBox;
+      },
+      onSuggestionSelected: (suggestion) {
+        sourceLocationCnt.text = suggestion.description;
+        //_tax.source_location = suggestion.description;
+        dealerUniqueId = suggestion.tax_dealer_unique_id;
+
+        //calculate_distance();
+      },
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Search using dealer id';
+        }
+        return "";
+      },
+      onSaved: (value) => _selectedCity = value,
+    );
+    */
+    //--------------------unique id dropdown---------------------
+
     return Scaffold(
         appBar: AppBar(
           title: Text("Epayment"),
@@ -550,6 +703,9 @@ class _Invoice extends State<InvoicePage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
                                       usertypeField,
+                                      //registeredUsersDropdown,
+                                      //(user_type == 0) ? registeredUsersDropdown :  new SizedBox.shrink(),
+                                      //(user_type == 1) ? consignerGstField :  new SizedBox.shrink(),
                                       //(user_type == 1) ? registeredUsersDropdown :  new SizedBox.shrink(),
                                       //(user_type == 2) ? new Column(
                                       new Column(
@@ -561,13 +717,14 @@ class _Invoice extends State<InvoicePage> {
                                             invoiceAmountField,
                                             vehicleNumberField,
                                             transactionTypeField,
-                                            (user_type == 1) ? consignerGstField :  new SizedBox.shrink(),
+                                            consignerGstField,
                                             firmNameField,
                                             firmAddressField,
                                             consigneeGstField,
                                             consigneeFirmNameField,
                                             billToField,
                                             shipToField,
+                                            invoiceInspectedDateField,
                                             //identification_dropdown,
                                             (user_type == 0) ? Container(
                                               // padding: EdgeInsets.all(16),
