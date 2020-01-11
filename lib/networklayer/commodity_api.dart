@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:hpetax/model/commoditymodel.dart';
 
-import 'commoditymodel.dart';
 import 'network_util.dart';
 
 class CommodityApi {

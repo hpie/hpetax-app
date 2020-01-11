@@ -7,8 +7,9 @@ String paymentUrl = "https://hpie.in/hpetax/app-payment/";
 //String paymentUrl = "http://192.168.1.19/hpetax/app-payment/";
 
 //String updatepaymentUrl = "https://hpie.in/hpetax/payment_new/updateTreasuryPayment/";
-
-String isLoggedIn = "Initial";
+String device_id = "";
+String unique_identifier = "";
+String isLoggedIn = "";
 String userSession = "";
 String selectedTaxType = "";
 String selectedVehicleNumber = "";

@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:hpetax/networklayer/searchplacesmodel.dart';
-
-import 'challanitemmodel.dart';
+import 'package:hpetax/model/challanitemmodel.dart';
+import 'package:hpetax/model/searchplacesmodel.dart';
 
 import 'package:hpetax/globals.dart' as globals;
 

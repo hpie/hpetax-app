@@ -1,25 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:hpetax/globals.dart' as globals;
 import 'package:hpetax/networklayer/commodity.dart';
 import 'package:hpetax/networklayer/commodity_api.dart';
 import 'package:hpetax/networklayer/places_api.dart';
-import 'package:hpetax/networklayer/players.dart';
 import 'package:hpetax/networklayer/tax.dart';
 import 'package:hpetax/networklayer/tax_api.dart';
 import 'package:hpetax/networklayer/taxtype_api.dart';
 import 'package:hpetax/util/function_collection.dart';
 import 'package:hpetax/util/widget_source.dart';
-import 'package:hpetax/util/device_data.dart';
 import 'package:toast/toast.dart';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-
-import 'package:hpetax/globals.dart' as globals;
 
 class EpaymentformPage extends StatefulWidget {
   @override
@@ -29,7 +20,7 @@ class EpaymentformPage extends StatefulWidget {
     return _Epaymentform();
   }
 }
-  //enum Departments { Production, Research, Purchasing, Marketing, Accounting }
+//enum Departments { Production, Research, Purchasing, Marketing, Accounting }
 class _Epaymentform extends State<EpaymentformPage> {
 /*
 *  Start Variable declarations
@@ -51,7 +42,6 @@ class _Epaymentform extends State<EpaymentformPage> {
   bool commodity_isdistancedependent = true;
 
   List<Tax> tax_queue;
-  List<Players> places_list;
 
   double total_tax = 0.0;
 
@@ -104,7 +94,11 @@ class _Epaymentform extends State<EpaymentformPage> {
               title: (globals.usertype == "") ? Text('Unregistered') : Text('Challan'),
               leading: IconButton(icon:Icon(Icons.arrow_back),
                   onPressed:() {
-                    Navigator.pushNamed(context, '/');
+                    if(globals.isLoggedIn != "") {
+                      Navigator.pushNamed(context, '/dashboard');
+                    } else {
+                      Navigator.pushNamed(context, '/landing');
+                    }
                   }
               )
           ),
@@ -182,7 +176,7 @@ class _Epaymentform extends State<EpaymentformPage> {
                                             tax_queue[index].unit, index)  : new SizedBox.shrink(),
 
                                         (tax_queue[index].quantity != "0" && commodityObj.tax_type_id != "PGT" && commodityObj.tax_commodity_taxcalculation == "BY_COUNT") ? list_get_content("Quantity :",
-                                              tax_queue[index].quantity, index)  : new SizedBox.shrink(),
+                                            tax_queue[index].quantity, index)  : new SizedBox.shrink(),
 
 
                                         list_get_location("Source Location :",
@@ -264,7 +258,7 @@ class _Epaymentform extends State<EpaymentformPage> {
       }
 
       if(selectedType == "CGCR") {
-       // weight = "1";
+        // weight = "1";
         places = "1";
         distance = "1";
       }
@@ -287,12 +281,12 @@ class _Epaymentform extends State<EpaymentformPage> {
 
     setState(() {
       _selectedCommodity = selectedCommodity;
-
+      /*
       weight = "0";
       places = "0";
       distance = "0";
       passengers = "0";
-
+      */
       getCommodityDetails(selectedCommodity);
       /*
       if(_selectedTaxType == "AG") {
@@ -328,21 +322,10 @@ class _Epaymentform extends State<EpaymentformPage> {
     updateTaxtypeDropdown("");
     listTaxItemQueue("");
     super.initState();
-
-    //getPlaces("nas");
   }
 
-  /*
-  List places
-   */
-  Future getPlaces(String newQuery) async {
-    print("");
-    var search = await _placesApi.get_places(newQuery);
 
-    setState(() {
-      places_list = search.list;
-    });
-  }
+
 
   Future calculate_distance() async {
     print("calculate_distance Called : Source - " + sourcePlaceId + " ||| Desitnation - " + destinationPlaceId);
@@ -425,6 +408,7 @@ class _Epaymentform extends State<EpaymentformPage> {
 
     setState(() {
       _dropDownMenuItems = buildAndGetDropDownMenuItems(_taxtype, _taxtypeVal);
+      _dropDownMenuItems2 = buildAndGetDropDownMenuItems2([""], [""]);
       if(globals.selectedTaxType != "") {
         _selectedTaxType = globals.selectedTaxType;
       } else {
@@ -473,7 +457,7 @@ class _Epaymentform extends State<EpaymentformPage> {
       totaltaxCnt.text = commodityObj.tax_commodity_taxcalculation;
 
       _tax.tax_type_id = commodityObj.tax_type_id;
-      // _tax.tax_type                   = commodityObj.tax_type_id;
+      _tax.tax_type                   = commodityObj.tax_type_id;
       _tax.tax_commodity_id = commodityObj.tax_commodity_id;
       _tax.tax_commodity_name = commodityObj.tax_commodity_name;
       _tax.tax_commodity_description = commodityObj.tax_commodity_description;
@@ -497,6 +481,8 @@ class _Epaymentform extends State<EpaymentformPage> {
           weight = "0";
         }
         */
+
+        print("====== : " + commodityObj.tax_type_id);
         if(_tax.tax_type == "AG") {
           weight = "1";
           places = "1";
@@ -678,9 +664,7 @@ class _Epaymentform extends State<EpaymentformPage> {
     }
   }
 
-  AutoCompleteTextField searchTextField;
-  GlobalKey<AutoCompleteTextFieldState<Players>> key = new GlobalKey();
-  static List<Players> player = new List<Players>();
+
   bool loading = true;
 
   final TextEditingController _typeAheadController = TextEditingController();
@@ -703,7 +687,8 @@ class _Epaymentform extends State<EpaymentformPage> {
       },
       itemBuilder: (context, suggestion) {
         return ListTile(
-          title: Text(suggestion.description),
+          //title: Text(suggestion.description),
+            title : places_suggestions(suggestion.description)
         );
       },
       transitionBuilder: (context, suggestionsBox, controller) {
@@ -738,7 +723,8 @@ class _Epaymentform extends State<EpaymentformPage> {
       },
       itemBuilder: (context, suggestion) {
         return ListTile(
-          title: Text(suggestion.description),
+          //title: Text(suggestion.description),
+          title : places_suggestions(suggestion.description)
         );
       },
       transitionBuilder: (context, suggestionsBox, controller) {
@@ -772,17 +758,41 @@ class _Epaymentform extends State<EpaymentformPage> {
             ),
           ),
         ),
-        (!is_edit && globals.selectedTaxType == "") ? new DropdownButton(
+        (!is_edit && globals.selectedTaxType == "") ? Container(
+
+            margin: const EdgeInsets.only(bottom: 10.0),
+            padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
+            decoration: new BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: new Border.all(
+                color: Colors.black,
+                width: 1.0,
+              ),
+              borderRadius: new BorderRadius.all(
+              Radius.circular(5.0)),
+            ),
+            child : new Theme(
+                data: Theme.of(context).copyWith(
+                  canvasColor: Colors.grey.shade200
+                ),
+                child : new DropdownButton(
+             // elevation: 0,
           value: _selectedTaxType,
           items: _dropDownMenuItems,
           onChanged: changedDropDownItem,
           isExpanded: true,
-          style: new TextStyle(color: Colors.black,
+          underline: Container(
+            height: 0,
+            color: Colors.deepPurpleAccent,
+          ),
+          style: new TextStyle(
+              color: Colors.black,
               fontWeight: FontWeight.normal,
               fontSize: mediumfontSize,
-              decorationStyle: TextDecorationStyle.dotted),
+              //decorationStyle: TextDecorationStyle.dotted,
+          ),
 
-        ) : new TextField(
+        ) )) : new TextField(
             decoration: new InputDecoration(hintText: "Tax Type",
               filled: true,
               fillColor: Colors.grey,
@@ -801,16 +811,37 @@ class _Epaymentform extends State<EpaymentformPage> {
                 fontWeight:FontWeight.bold),
           ),
         ),
-        (!is_edit) ? new DropdownButton(
+        (!is_edit) ? Container(
+            //margin: const EdgeInsets.only(bottom: 5.0),
+            padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
+            decoration: new BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: new Border.all(
+                color: Colors.black,
+                width: 1.0,
+              ),
+              borderRadius: new BorderRadius.all(
+                  Radius.circular(5.0)),
+            ),
+
+    child : new Theme(
+    data: Theme.of(context).copyWith(
+    canvasColor: Colors.grey.shade200
+    ),
+    child : new DropdownButton(
           value: _selectedCommodity,
           items: _dropDownMenuItems2,
           onChanged: changedDropDownItem2,
           isExpanded: true,
+              underline: Container(
+                height: 0,
+                color: Colors.deepPurpleAccent,
+              ),
           style: new TextStyle(color: Colors.black,
               fontWeight: FontWeight.normal,
               fontSize: mediumfontSize,
               decorationStyle: TextDecorationStyle.dotted),
-        ) : new TextField(
+        )) ) : new TextField(
             decoration: new InputDecoration(hintText: "Commodity",
               filled: true,
               fillColor: Colors.grey,

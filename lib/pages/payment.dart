@@ -7,8 +7,6 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:hpetax/networklayer/challan.dart';
 import 'package:hpetax/networklayer/epayment.dart';
 import 'package:hpetax/networklayer/epayment_api.dart';
-import 'package:hpetax/util/device_data.dart';
-import 'package:hpetax/util/validations.dart';
 import 'package:hpetax/globals.dart' as globals;
 
 /* ============== Start webview declarations ==================== */
@@ -33,8 +31,6 @@ final Set<JavascriptChannel> jsChannels = [
 class PaymentPage extends StatefulWidget {
   @override
   _Payment createState() {
-    var frm_data = new DeviceData();
-    frm_data.get_data();
     return _Payment();
   }
 }
@@ -45,7 +41,6 @@ class _Payment extends State<PaymentPage> {
 
   EpaymentApi _epaymentApi = new EpaymentApi();
   Epayment _epayment = new Epayment();
-  CustomValidations _customValidations = new CustomValidations();
 
   final customLoaderField =  CircularProgressIndicator();
 

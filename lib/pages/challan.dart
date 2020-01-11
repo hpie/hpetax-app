@@ -8,25 +8,17 @@ import 'package:hpetax/networklayer/epayment.dart';
 import 'package:hpetax/networklayer/epayment_api.dart';
 import 'package:hpetax/networklayer/user_api.dart';
 import 'package:intl/intl.dart';
-
-
 import 'package:toast/toast.dart';
-
 import 'package:hpetax/globals.dart' as globals;
 
-
-import 'package:hpetax/util/device_data.dart';
-
-class EpaymentPage extends StatefulWidget {
+class ChallanPage extends StatefulWidget {
   @override
-  _Epayment createState() {
-    var frm_data = new DeviceData();
-    frm_data.get_data();
-    return _Epayment();
+  _Challan createState() {
+    return _Challan();
   }
 }
 
-class _Epayment extends State<EpaymentPage> {
+class _Challan extends State<ChallanPage> {
 
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
@@ -265,7 +257,7 @@ class _Epayment extends State<EpaymentPage> {
       print(now.millisecondsSinceEpoch);
 
       // commented for test purpose
-      globals.userSession = globals.isLoggedIn + "_" + (now.millisecondsSinceEpoch).toString();
+      globals.userSession = globals.device_id + "_" + (now.millisecondsSinceEpoch).toString();
       Navigator.pushNamed(context, '/payment');
 
       setState(() {

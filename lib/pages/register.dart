@@ -1,21 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:hpetax/networklayer/dealer.dart';
-import 'package:hpetax/networklayer/register_api.dart';
-import 'package:hpetax/util/device_data.dart';
-import 'package:toast/toast.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:hpetax/networklayer/dealer.dart';
+import 'package:hpetax/networklayer/register_api.dart';
+import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
-import 'package:hpetax/globals.dart' as globals;
+
 
 class RegisterPage extends StatefulWidget {
   @override
   _Register createState() {
-    var frm_data = new DeviceData();
-    frm_data.get_data();
     return _Register();
   }
 }

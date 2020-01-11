@@ -1,28 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hpetax/globals.dart' as globals;
 import 'package:hpetax/networklayer/user.dart';
 import 'package:hpetax/networklayer/user_api.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:toast/toast.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-
-import 'package:hpetax/globals.dart' as globals;
-
-
-import 'package:hpetax/util/device_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _Login createState() {
-    var frm_data = new DeviceData();
-    frm_data.get_data();
     return _Login();
   }
 }
@@ -92,10 +78,13 @@ class _Login extends State<LoginPage> {
       prefs.setString('username', username);
       prefs.setInt('usertype', usertype);
       prefs.setInt('userid', userid);
+      prefs.setInt('isLoggedIn', userid);
 
       globals.username = username;
       globals.usertype = usertype.toString();
       globals.userid = userid.toString();
+      globals.isLoggedIn = userid.toString();
+
       print("Logged in : " + username + " || global usertype : " + globals.usertype);
      Navigator.pushNamed(context, '/dashboard');
     } else {

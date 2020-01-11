@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:hpetax/model/challanitemmodel.dart';
 import 'package:hpetax/networklayer/taxitemmodel.dart';
 
-import 'challanitemmodel.dart';
 import 'epayment.dart';
 import 'network_util.dart';
 import 'package:hpetax/globals.dart' as globals;

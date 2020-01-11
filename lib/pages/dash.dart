@@ -1,28 +1,16 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:hpetax/networklayer/user.dart';
-import 'package:hpetax/networklayer/user_api.dart';
-import 'package:hpetax/util/device_data.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:toast/toast.dart';
-
-import 'package:uuid/uuid.dart';
-import 'package:uuid/uuid_util.dart';
-
+import 'dart:async';
 
 import 'package:hpetax/globals.dart' as globals;
-
+import 'package:hpetax/networklayer/user.dart';
+import 'package:hpetax/networklayer/user_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
+import 'package:hpetax/util/function_collection.dart';
 
 class DashPage extends StatefulWidget {
   @override
   _Dash createState() {
-    var frm_data = new DeviceData();
-    frm_data.get_data();
     return _Dash();
   }
 }
@@ -32,13 +20,17 @@ class _Dash extends State<DashPage> {
 
   _checkLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    globals.username = prefs.getString('username');
-    globals.usertype = prefs.getInt('usertype').toString();
-    globals.userid = prefs.getInt('userid').toString();
-
-    print("Dash.dart user name : " + globals.username);
-    print("Dash.dart user type : " + globals.usertype);
-    print("Dash.dart user id : " + globals.userid);
+    if(prefs.getString('username') != null) {
+      print("Username set");
+      globals.username = prefs.getString('username');
+      globals.usertype = prefs.getInt('usertype').toString();
+      globals.userid = prefs.getInt('userid').toString();
+    } else {
+      print("Username not set");
+      globals.username = "";
+      globals.usertype = "";
+      globals.userid = "";
+    }
   }
 
   /* Start Radio button functionality */
@@ -129,10 +121,12 @@ class _Dash extends State<DashPage> {
   @override
   Widget build(BuildContext context) {
     //Loading counter value on start
+    /*
     _logOut() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('username', "");
       prefs.setInt('usertype', null);
+      prefs.setInt('userid', null);
       prefs.setInt('userid', null);
 
       globals.username = "";
@@ -144,11 +138,13 @@ class _Dash extends State<DashPage> {
 
       var now = new DateTime.now();
       print(now.millisecondsSinceEpoch);
-      globals.userSession = globals.isLoggedIn + "_" + (now.millisecondsSinceEpoch).toString();
+      globals.userSession = globals.device_id + "_" + (now.millisecondsSinceEpoch).toString();
 
 
       print("logged out");
     }
+    */
+
 
     String validatePassword(String value) {
       if (value.length < 3)
@@ -245,8 +241,9 @@ class _Dash extends State<DashPage> {
           new IconButton(
             icon: new Icon(Icons.power_settings_new),
             onPressed: () {
-              _logOut();
-              Navigator.pushNamed(context, '/');
+              //_logOut();
+              logout();
+              Navigator.pushNamed(context, '/landing');
             },
           ),
         ],
@@ -305,7 +302,7 @@ class _Dash extends State<DashPage> {
                   ),
                 ],
               ),
-              new Row(
+              (globals.usertype == "2") ? new Row(
                 children: <Widget>[
                   Expanded(
                     child: Padding(
@@ -326,7 +323,7 @@ class _Dash extends State<DashPage> {
                     ),
                   ),
                 ],
-              ),
+              ) :  new SizedBox.shrink(),
               (globals.usertype == "2") ? new Row(
                 children: <Widget>[
                   Expanded(
@@ -384,8 +381,10 @@ class _Dash extends State<DashPage> {
                           child: new Text('LogOut', style: new TextStyle(fontSize: 20.0, color: Colors.white)),
                         ),
                         onPressed: () {
-                          _logOut();
-                          Navigator.pushNamed(context, '/');
+                          //_logOut();
+                          logout();
+
+                          Navigator.pushNamed(context, '/landing');
                         },
                       ),
 

@@ -48,6 +48,9 @@ class InvoiceApi {
       "inspected_date": invoice.inspected_date,
       "tax_employee_code": globals.userid,
 
+      "file": invoice.file,
+      "file_name": invoice.file_name,
+
       "created_by": globals.userid,
       "token":"123",
       "device":"android"

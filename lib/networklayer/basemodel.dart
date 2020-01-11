@@ -1,5 +1,3 @@
-
-
 import 'package:hpetax/networklayer/taxtype.dart';
 
 class BaseModel {

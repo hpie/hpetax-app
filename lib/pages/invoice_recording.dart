@@ -6,6 +6,7 @@ import 'package:hpetax/networklayer/epayment_api.dart';
 import 'package:hpetax/networklayer/invoice.dart';
 import 'package:hpetax/networklayer/invoice_api.dart';
 import 'package:hpetax/networklayer/user_api.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -28,6 +29,16 @@ class _Invoice extends State<InvoicePage> {
 /*
 *  Start Variable declarations
 */
+
+  File _image;
+
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+    setState(() {
+      _image = image;
+    });
+  }
 
   int user_type;
 
@@ -102,6 +113,7 @@ class _Invoice extends State<InvoicePage> {
 
     apply_values(true);
 
+    print("invoice_recording_user_type : " + globals.invoice_recording_user_type);
     if(globals.invoice_recording_user_type != "" && globals.invoice_recording_user_id != "") {
       get_user();
     }
@@ -112,7 +124,9 @@ class _Invoice extends State<InvoicePage> {
     var response = await _invoiceApi.get_record(globals.invoice_recording_user_type, "", globals.invoice_recording_user_id);
 
     if(response["success"] == true) {
-      apply_values(true);
+      //apply_values(true);
+
+      apply_values(false);
 
       setState(() {
         user_type = (globals.invoice_recording_user_type == "registered") ? 1 : 0;
@@ -140,6 +154,7 @@ class _Invoice extends State<InvoicePage> {
     } else {
       print("In else ");
       apply_values(true);
+      //apply_values(false);
     }
   }
   void apply_values(is_empty) {
@@ -240,6 +255,15 @@ class _Invoice extends State<InvoicePage> {
 
     Future record_invoice(context) async {
       var response;
+
+      _invoice.file = "";
+      _invoice.file_name = "";
+      if (_image != null) {
+        _invoice.file = base64Encode(_image.readAsBytesSync());
+        _invoice.file_name = _image.path.split("/").last;
+
+        _image = null;
+      }
 
       response = await _invoiceApi.add(_invoice);
       Toast.show(response['message'], context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
@@ -764,7 +788,7 @@ class _Invoice extends State<InvoicePage> {
                                               ),
                                             ) :  new SizedBox.shrink(),
                                             (user_type == 0) ? identificationNoField :  new SizedBox.shrink(),
-
+                                           // _image == null ? Text('No image selected.') : Image.file(_image),
                                           ]
                                       )
                                       //):  new SizedBox.shrink(),
@@ -776,11 +800,17 @@ class _Invoice extends State<InvoicePage> {
                       }
                   )
               ),
+
               const SizedBox(height: 10),
               (!isLoading) ? recordButon : CircularProgressIndicator(),
               const SizedBox(height: 10),
             ]
-        )
+        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: getImage,
+        tooltip: 'Pick Image',
+        child: Icon(Icons.add_a_photo),
+      ),
     );
 
     return Scaffold(

@@ -1,54 +1,35 @@
+import 'dart:async';
+import 'package:device_id/device_id.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:hpetax/pages/challan.dart';
-import 'package:hpetax/pages/dash.dart';
-import 'package:hpetax/pages/epaymentform.dart';
-import 'package:hpetax/pages/invoice_recording.dart';
-import 'package:hpetax/pages/landing.dart';
-import 'package:hpetax/pages/login.dart';
-import 'package:hpetax/pages/payment.dart';
-import 'package:hpetax/pages/record_invoice.dart';
-import 'package:hpetax/pages/register.dart';
-import 'package:hpetax/pages/test.dart';
-import 'package:hpetax/pages/unregistered.dart';
-import 'package:hpetax/pages/user_challan.dart';
-import 'package:hpetax/util/device_data.dart';
+import 'pages/invoice_recording.dart';
+import 'pages/record_invoice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'pages/challan.dart';
+import 'pages/dash.dart';
+import 'pages/epaymentform.dart';
+import 'pages/home.dart';
 import 'globals.dart' as globals;
+import 'pages/login.dart';
+import 'pages/payment.dart';
+import 'pages/register.dart';
+import 'util/function_collection.dart';
 
 
 void main() {
-  var frm_data = new DeviceData();
-  globals.isLoggedIn = (frm_data.get_data()).toString();
-  int _counter = 0;
-
-  final flutterWebViewPlugin = FlutterWebviewPlugin();
-
-  //Loading counter value on start
-  _checkLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    globals.username = prefs.getString('username');
-    globals.usertype = prefs.getInt('usertype').toString();
-  }
-
-  _checkLogin();
-
-  runApp(MaterialApp(
-    title: 'HpTax',
-    initialRoute: '/',
-    routes: {
-      '/': (context) => (globals.username == "" || globals.username == null) ? HomePage() : DashPage(),
-      '/unregistered': (context) => UnregisteredPage(),
-      '/dashboard': (context) => DashPage(),
-      '/invoice_recording': (context) => InvoicePage(),
-      '/record_invoice': (context) => RecordinvoicePage(),
-      '/user_challan': (context) => UserchallanPage(),
-      '/test': (context) => TestPage(),
+  runApp(new MaterialApp(
+    home: new SplashScreen(),
+    routes: <String, WidgetBuilder>{
+      '/landing': (context) => HomePage(),
       '/login': (context) => LoginPage(),
       '/register': (context) => RegisterPage(),
-      '/epayment': (context) => EpaymentPage(),
-      '/payment': (context) => PaymentPage(),
+      '/dashboard': (context) => DashPage(),
       '/epayment_form': (context) => EpaymentformPage(),
+      '/challan': (context) => ChallanPage(),
+      '/payment': (context) => PaymentPage(),
+      '/record_invoice': (context) => RecordinvoicePage(),
+      '/invoice_recording': (context) => InvoicePage(),
       '/widget': (_) {
         return WebviewScaffold(
           url: selectedUrl,
@@ -93,50 +74,74 @@ void main() {
           ),
         );
       },
-      '/widget2': (_) {
-        return WebviewScaffold(
-          url: "https://hpie.in/hpetax/app-payment/5dea0e583c270",
-          //url: "https://192.168.1.19/hpetax/app-payment/5de9e3958c7df",
-          javascriptChannels: jsChannels,
-          appBar: AppBar(
-            title: const Text('Test payment'),
-          ),
-          withZoom: true,
-          withLocalStorage: true,
-          hidden: true,
-          initialChild: Container(
-            color: Colors.grey,
-            child: const Center(
-              child: Text('Waiting.....'),
-            ),
-          ),
-          bottomNavigationBar: BottomAppBar(
-            child: Row(
-              children: <Widget>[
-
-              ],
-            ),
-          ),
-        );
-      },
-      '/widget3': (_) => new WebviewScaffold(
-        url: "https://hpie.in/hpetax/app-payment/5de91036552ff",
-        appBar: new AppBar(
-          title: const Text('Widget webview'),
-        ),
-        withZoom: true,
-        withLocalStorage: true,
-        hidden: true,
-        initialChild: Container(
-          color: Colors.redAccent,
-          child: const Center(
-            child: Text('Waiting.....'),
-          ),
-        ),
-      ),
     },
   ));
 }
 
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => new _SplashScreenState();
+}
 
+class _SplashScreenState extends State<SplashScreen> {
+  String _deviceid = 'Unknown';
+  startTime() async {
+    var _duration = new Duration(seconds: 2);
+    return new Timer(_duration, navigationPage);
+  }
 
+  void navigationPage() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    print("===== : " + prefs.getInt('isLoggedIn').toString());
+    if(prefs.getInt('isLoggedIn') != null) {
+
+      globals.username    = prefs.getString('username');
+      globals.usertype    = prefs.getInt('usertype').toString();
+      globals.userid      = prefs.getInt('userid').toString();
+      globals.isLoggedIn  = prefs.getInt('isLoggedIn').toString();
+
+      Navigator.of(context).pushReplacementNamed('/dashboard');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/landing');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initDeviceId();
+    startTime();
+  }
+
+  Future<void> initDeviceId() async {
+    String deviceid;
+    String imei;
+    String meid;
+
+    deviceid = await DeviceId.getID;
+    try {
+      imei = await DeviceId.getIMEI;
+      meid = await DeviceId.getMEID;
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _deviceid = 'Your deviceid: $deviceid\nYour IMEI: $imei\nYour MEID: $meid';
+      globals.device_id = deviceid;
+      set_session();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      body: new Center(
+        child: new Image.asset('images/flutter_icon.png'),
+      ),
+    );
+  }
+}

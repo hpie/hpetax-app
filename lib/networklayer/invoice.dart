@@ -24,7 +24,8 @@ class Invoice extends Object {
   String created_by;
   String created_date;
 
-
+  String file;
+  String file_name;
 
   Invoice({
 
@@ -48,7 +49,9 @@ class Invoice extends Object {
     this.inspected_date = "",
     this.tax_employee_code = "",
     this.created_by = "",
-    this.created_date = ""
+    this.created_date = "",
+    this.file = "",
+    this.file_name = ""
   });
 
   flush() {
@@ -73,6 +76,9 @@ class Invoice extends Object {
     this.tax_employee_code = "";
     this.created_by = "";
     this.created_date = "";
+
+    this.file = "";
+    this.file_name = "";
   }
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
@@ -98,7 +104,9 @@ class Invoice extends Object {
         inspected_date: ((json['inspected_date']).toString()).toString() as String,
         tax_employee_code: ((json['tax_employee_code']).toString()).toString() as String,
         created_by: ((json['created_by']).toString()).toString() as String,
-        created_date: ((json['created_date']).toString()).toString() as String
+        created_date: ((json['created_date']).toString()).toString() as String,
+        file: ((json['file']).toString()).toString() as String,
+        file_name: ((json['file_name']).toString()).toString() as String
     );
   }
 

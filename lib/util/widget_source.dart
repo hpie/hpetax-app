@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 
@@ -70,7 +69,7 @@ Widget list_get_location(label, value, index) {
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed: () {
               if(tax_queue != null && tax_queue.length > 0) {
-                Navigator.pushNamed(context, '/epayment');
+                Navigator.pushNamed(context, '/challan');
               } else {
                 Toast.show("Please add items to queue", context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
               }
