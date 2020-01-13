@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:hpetax/networklayer/dealer.dart';
-import 'package:hpetax/networklayer/register_api.dart';
+import 'package:tax/networklayer/dealer.dart';
+import 'package:tax/networklayer/register_api.dart';
 import 'package:toast/toast.dart';
 import 'package:intl/intl.dart';
 

@@ -1,5 +1,5 @@
 
-import 'package:hpetax/networklayer/invoice.dart';
+import 'package:tax/networklayer/invoice.dart';
 
 class InvoiceModel {
   int status;

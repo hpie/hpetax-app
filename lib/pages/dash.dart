@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/networklayer/user.dart';
-import 'package:hpetax/networklayer/user_api.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/networklayer/user.dart';
+import 'package:tax/networklayer/user_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
-import 'package:hpetax/util/function_collection.dart';
+import 'package:tax/util/function_collection.dart';
 
 class DashPage extends StatefulWidget {
   @override

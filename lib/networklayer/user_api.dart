@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:hpetax/model/Invoicemodel.dart';
-import 'package:hpetax/networklayer/user.dart';
+import 'package:tax/model/Invoicemodel.dart';
+import 'package:tax/networklayer/user.dart';
 
 import 'basemodel.dart';
 import 'network_util.dart';

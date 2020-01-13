@@ -1,5 +1,5 @@
 
-import 'package:hpetax/networklayer/places.dart';
+import 'package:tax/networklayer/places.dart';
 
 class SearchplacesModel {
   int status;

@@ -4,12 +4,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:hpetax/networklayer/epayment.dart';
-import 'package:hpetax/networklayer/epayment_api.dart';
-import 'package:hpetax/networklayer/user_api.dart';
+import 'package:tax/networklayer/epayment.dart';
+import 'package:tax/networklayer/epayment_api.dart';
+import 'package:tax/networklayer/user_api.dart';
+import 'package:tax/util/function_collection.dart';
 import 'package:intl/intl.dart';
 import 'package:toast/toast.dart';
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/globals.dart' as globals;
 
 class ChallanPage extends StatefulWidget {
   @override
@@ -51,6 +52,7 @@ class _Challan extends State<ChallanPage> {
 
   List _receiptName = [""];
   List _receiptVal = [""];
+  List _receiptCode = [""];
 
   //String _selectedDdo, _selectedReceipt;
 
@@ -60,7 +62,7 @@ class _Challan extends State<ChallanPage> {
 
   List<DropdownMenuItem<String>> _dropDownDdoItems;
   List<DropdownMenuItem<String>> _dropDownReceiptItems;
-
+    /*
   List<DropdownMenuItem<String>> buildAndGetDropDownMenuItems(data) {
     //print("In dropdown item : ");
     //print(data);
@@ -71,7 +73,8 @@ class _Challan extends State<ChallanPage> {
       i++;
     }
     return items;
-  }
+  }*/
+    /*
   List<DropdownMenuItem<String>> buildAndGetDropDownMenuItems2(data) {
     List<DropdownMenuItem<String>> items = new List();
     int i = 0;
@@ -81,11 +84,22 @@ class _Challan extends State<ChallanPage> {
     }
     return items;
   }
+  */
 
   void changedDropDownDdo(String data) {
-    //print("Called : changedDropDownDdo");
+   // print("Called : data");
 
     setState(() {
+      /*
+      print(_ddoName);
+      print(_ddoVal);
+
+      var ddo_index = _ddoVal.indexWhere((val) => (val == data));
+
+      print(_ddoName[ddo_index]);
+      */
+
+
       _selectedDdo = data;
 
      // print("Selected ddo : " + _selectedDdo);
@@ -93,9 +107,22 @@ class _Challan extends State<ChallanPage> {
   }
 
   void changedDropDownReceipt(String data) {
-    //print("Called : changedDropDownReceipt");
+   // print("Called : " + data);
 
     setState(() {
+
+      print(_receiptName);
+      print(_receiptVal);
+
+      var receipt_index = _receiptVal.indexWhere((val) => (val == data));
+
+      //_receiptCode
+
+      codeCnt.text = _receiptCode[receipt_index];
+
+      print(_receiptName[receipt_index]);
+
+      purposeCnt.text = _receiptName[receipt_index];
       _selectedReceipt = data;
 
       //print("Selected ddo : " + _selectedReceipt);
@@ -204,25 +231,26 @@ class _Challan extends State<ChallanPage> {
     //print("dropdown names");
     //print(_ddoName);
     setState(() {
-      _dropDownDdoItems = buildAndGetDropDownMenuItems(_ddoName);
+      _dropDownDdoItems = buildAndGetDropDownMenuItems(_ddoName, _ddoVal);
     });
   }
 
   updateReceiptDropdown(data) {
-    //print("update Receipt dropdown called");
-    //print(data);
-    //print(_receiptName);
+    print("update Receipt dropdown called");
+    print(data);
+    print(_receiptName);
     for(var i = 0; i < data.length; i++){
       if(data[i]['tax_revenue_receipt_name'].trim() != "") {
         _receiptName.add(data[i]['tax_revenue_receipt_name'].trim());
         _receiptVal.add(data[i]['tax_revenue_receipt_id']);
+        _receiptCode.add(data[i]['tax_revenue_receipt_head'] +'-'+data[i]['tax_receipt_head']);
       }
     }
   //<option class="" value="<?php echo $row['tax_receipt_head']; ?>"><?php echo $row['tax_revenue_receipt_name']; ?></option>
     //print("receipt dropdown names");
     //print(_receiptVal);
     setState(() {
-      _dropDownReceiptItems = buildAndGetDropDownMenuItems2(_receiptName);
+      _dropDownReceiptItems = buildAndGetDropDownMenuItems(_receiptName, _receiptVal);
     });
   }
   /*
@@ -415,12 +443,15 @@ class _Challan extends State<ChallanPage> {
         padding: const EdgeInsets.all(3.0),
         child : Column(
       children: <Widget>[
-        TextFormField(
-            decoration: new InputDecoration(
-                labelText: 'Invoice Number'
-            ),
-            enabled : false,
-            controller: eptaxtypeCnt
+        new Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: TextFormField(
+                decoration: new InputDecoration(
+                    labelText: 'Tax Type'
+                ),
+                enabled : false,
+                controller: eptaxtypeCnt
+            )
         ),
         new Align(
           alignment: Alignment.topLeft,
@@ -431,6 +462,7 @@ class _Challan extends State<ChallanPage> {
             ),
           ),
         ),
+        /*
         new DropdownButton(
           value: _selectedDdo,
           items: _dropDownDdoItems,
@@ -442,6 +474,42 @@ class _Challan extends State<ChallanPage> {
               decorationStyle: TextDecorationStyle.dotted),
 
         ),
+        */
+        Container(
+
+            margin: const EdgeInsets.only(bottom: 10.0),
+            padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
+            decoration: new BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: new Border.all(
+                color: Colors.black,
+                width: 1.0,
+              ),
+              borderRadius: new BorderRadius.all(
+                  Radius.circular(5.0)),
+            ),
+            child : new Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Colors.grey.shade200
+                ),
+                child : new DropdownButton(
+                  // elevation: 0,
+                  value: _selectedDdo,
+                  items: _dropDownDdoItems,
+                  onChanged: changedDropDownDdo,
+                  isExpanded: true,
+                  underline: Container(
+                    height: 0,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  style: new TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    fontSize: globals.mediumfontSize,
+                    //decorationStyle: TextDecorationStyle.dotted,
+                  ),
+
+                ) )),
         new Align(
           alignment: Alignment.topLeft,
           child: Text(
@@ -451,6 +519,7 @@ class _Challan extends State<ChallanPage> {
             ),
           ),
         ),
+        /*
         new DropdownButton(
           value: _selectedReceipt,
           items: _dropDownReceiptItems,
@@ -462,6 +531,42 @@ class _Challan extends State<ChallanPage> {
               decorationStyle: TextDecorationStyle.dotted),
 
         ),
+        */
+        Container(
+
+            margin: const EdgeInsets.only(bottom: 0.0),
+            padding: EdgeInsets.fromLTRB(5.0, 0.0, 0.0, 0.0),
+            decoration: new BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: new Border.all(
+                color: Colors.black,
+                width: 1.0,
+              ),
+              borderRadius: new BorderRadius.all(
+                  Radius.circular(5.0)),
+            ),
+            child : new Theme(
+                data: Theme.of(context).copyWith(
+                    canvasColor: Colors.grey.shade200
+                ),
+                child : new DropdownButton(
+                  // elevation: 0,
+                  value: _selectedReceipt,
+                  items: _dropDownReceiptItems,
+                  onChanged: changedDropDownReceipt,
+                  isExpanded: true,
+                  underline: Container(
+                    height: 0,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  style: new TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    fontSize: globals.mediumfontSize,
+                    //decorationStyle: TextDecorationStyle.dotted,
+                  ),
+
+                ) )),
         /*
         new DropdownButton(
           value: _selectedTaxType,

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/networklayer/tax.dart';
-import 'package:hpetax/networklayer/taxitemmodel.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/networklayer/tax.dart';
+import 'package:tax/networklayer/taxitemmodel.dart';
 
 import 'network_util.dart';
 

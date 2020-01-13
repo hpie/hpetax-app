@@ -1,4 +1,4 @@
-import 'package:hpetax/networklayer/taxtype.dart';
+import 'package:tax/networklayer/taxtype.dart';
 
 class BaseModel {
   int status;

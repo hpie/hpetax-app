@@ -1,6 +1,6 @@
 
 
-import 'package:hpetax/networklayer/commodity.dart';
+import 'package:tax/networklayer/commodity.dart';
 
 class CommodityModel {
   int status;

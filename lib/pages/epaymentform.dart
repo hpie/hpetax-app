@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'dart:async';
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/networklayer/commodity.dart';
-import 'package:hpetax/networklayer/commodity_api.dart';
-import 'package:hpetax/networklayer/places_api.dart';
-import 'package:hpetax/networklayer/tax.dart';
-import 'package:hpetax/networklayer/tax_api.dart';
-import 'package:hpetax/networklayer/taxtype_api.dart';
-import 'package:hpetax/util/function_collection.dart';
-import 'package:hpetax/util/widget_source.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/networklayer/commodity.dart';
+import 'package:tax/networklayer/commodity_api.dart';
+import 'package:tax/networklayer/places_api.dart';
+import 'package:tax/networklayer/tax.dart';
+import 'package:tax/networklayer/tax_api.dart';
+import 'package:tax/networklayer/taxtype_api.dart';
+import 'package:tax/util/function_collection.dart';
+import 'package:tax/util/widget_source.dart';
 import 'package:toast/toast.dart';
 
 class EpaymentformPage extends StatefulWidget {
@@ -753,7 +753,7 @@ class _Epaymentform extends State<EpaymentformPage> {
           child: Text(
             "Tax Type",
             style: TextStyle(
-                fontSize: smallfontSize,
+                fontSize: globals.smallfontSize,
                 fontWeight:FontWeight.bold
             ),
           ),
@@ -788,7 +788,7 @@ class _Epaymentform extends State<EpaymentformPage> {
           style: new TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.normal,
-              fontSize: mediumfontSize,
+              fontSize: globals.mediumfontSize,
               //decorationStyle: TextDecorationStyle.dotted,
           ),
 
@@ -798,7 +798,7 @@ class _Epaymentform extends State<EpaymentformPage> {
               fillColor: Colors.grey,
             ),
             style: TextStyle(
-                fontSize: smallfontSize,
+                fontSize: globals.smallfontSize,
                 fontWeight:FontWeight.bold),
             enabled : false,
             controller: editTaxTypeCnt
@@ -807,7 +807,7 @@ class _Epaymentform extends State<EpaymentformPage> {
           alignment: Alignment.topLeft,
           child: Text(
             "Commodity / Description :",
-            style: TextStyle(fontSize: smallfontSize,
+            style: TextStyle(fontSize: globals.smallfontSize,
                 fontWeight:FontWeight.bold),
           ),
         ),
@@ -839,7 +839,7 @@ class _Epaymentform extends State<EpaymentformPage> {
               ),
           style: new TextStyle(color: Colors.black,
               fontWeight: FontWeight.normal,
-              fontSize: mediumfontSize,
+              fontSize: globals.mediumfontSize,
               decorationStyle: TextDecorationStyle.dotted),
         )) ) : new TextField(
             decoration: new InputDecoration(hintText: "Commodity",

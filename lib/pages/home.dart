@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/util/function_collection.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/util/function_collection.dart';
 
 class HomePage extends StatelessWidget {
 

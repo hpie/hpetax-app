@@ -1,5 +1,5 @@
 
-import 'package:hpetax/networklayer/tax.dart';
+import 'package:tax/networklayer/tax.dart';
 
 class TaxitemModel {
   int status;

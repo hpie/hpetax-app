@@ -1,4 +1,4 @@
-import 'package:hpetax/networklayer/challan.dart';
+import 'package:tax/networklayer/challan.dart';
 
 class ChallanitemModel {
   int status;

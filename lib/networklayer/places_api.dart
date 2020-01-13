@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:hpetax/model/challanitemmodel.dart';
-import 'package:hpetax/model/searchplacesmodel.dart';
+import 'package:tax/model/challanitemmodel.dart';
+import 'package:tax/model/searchplacesmodel.dart';
 
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/globals.dart' as globals;
 
 import 'network_util.dart';
 

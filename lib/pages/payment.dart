@@ -4,10 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:hpetax/networklayer/challan.dart';
-import 'package:hpetax/networklayer/epayment.dart';
-import 'package:hpetax/networklayer/epayment_api.dart';
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/networklayer/challan.dart';
+import 'package:tax/networklayer/epayment.dart';
+import 'package:tax/networklayer/epayment_api.dart';
+import 'package:tax/globals.dart' as globals;
 
 /* ============== Start webview declarations ==================== */
 const kAndroidUserAgent =

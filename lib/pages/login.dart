@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/networklayer/user.dart';
-import 'package:hpetax/networklayer/user_api.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/networklayer/user.dart';
+import 'package:tax/networklayer/user_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 

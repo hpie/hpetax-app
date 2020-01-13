@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:hpetax/globals.dart' as globals;
-import 'package:hpetax/model/Invoicemodel.dart';
-import 'package:hpetax/networklayer/taxitemmodel.dart';
+import 'package:tax/globals.dart' as globals;
+import 'package:tax/model/Invoicemodel.dart';
+import 'package:tax/networklayer/taxitemmodel.dart';
 
 import 'invoice.dart';
 import 'network_util.dart';

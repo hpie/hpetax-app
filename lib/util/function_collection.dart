@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/globals.dart' as globals;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /*

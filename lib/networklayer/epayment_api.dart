@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:hpetax/model/challanitemmodel.dart';
-import 'package:hpetax/networklayer/taxitemmodel.dart';
+import 'package:tax/model/challanitemmodel.dart';
+import 'package:tax/networklayer/taxitemmodel.dart';
 
 import 'epayment.dart';
 import 'network_util.dart';
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/globals.dart' as globals;
 
 class EpaymentApi {
 

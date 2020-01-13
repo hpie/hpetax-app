@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:hpetax/networklayer/challan.dart';
-import 'package:hpetax/networklayer/epayment_api.dart';
-import 'package:hpetax/networklayer/invoice.dart';
-import 'package:hpetax/networklayer/invoice_api.dart';
-import 'package:hpetax/networklayer/user_api.dart';
-import 'package:hpetax/util/widget_source.dart';
+import 'package:tax/networklayer/challan.dart';
+import 'package:tax/networklayer/epayment_api.dart';
+import 'package:tax/networklayer/invoice.dart';
+import 'package:tax/networklayer/invoice_api.dart';
+import 'package:tax/networklayer/user_api.dart';
+import 'package:tax/util/widget_source.dart';
 import 'package:intl/intl.dart';
 //import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -16,7 +16,7 @@ import 'package:toast/toast.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
-import 'package:hpetax/globals.dart' as globals;
+import 'package:tax/globals.dart' as globals;
 
 
 class RecordinvoicePage extends StatefulWidget {
