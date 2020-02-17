@@ -14,13 +14,13 @@ class PlacesApi {
 
   //Future<TaxitemModel> search(String query) {
   Future<dynamic> get_places(String query) {
-   // print("=======called challan initial data=======" + query);
+   print("=======called challan initial data=======" + query);
     String placesApiKey = globals.googlePlacesApiKey;
     //String BASE_TOKEN_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="+query+"&key=AIzaSyBIP2JwuoMf2B52uoQ6Cu88PrkWq8oId-Y";
     //String BASE_TOKEN_URL = "http://hpie.in/hpetax/places.json";
     String BASE_TOKEN_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input="+query+"&key="+placesApiKey;
 
-   // print("=======places url =======" + BASE_TOKEN_URL);
+   print("=======places url =======" + BASE_TOKEN_URL);
     var match = {
       "queue_session": globals.userSession,
       "token": "123",
@@ -33,11 +33,11 @@ class PlacesApi {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         encoding: Encoding.getByName("utf-8")).then((dynamic res) {
-      /*
+      ///*
       print("=======places data=======");
       print(res["predictions"]);
       print("=======places data=======");
-      */
+      //*/
       //var results = Epayment.fromJson(res["Result"]);
 
       var results = new SearchplacesModel.searchResult(res["predictions"]);

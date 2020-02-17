@@ -35,6 +35,8 @@ class _Epaymentform extends State<EpaymentformPage> {
   double mediumfontSize = 20;
   double bigfontSize = 25;
 
+  String cess_text = "0";
+
   double commodity_rate = 0.0;
   int commodity_rate_unit = 0;
   String commodity_measure_unit = "";
@@ -55,6 +57,8 @@ class _Epaymentform extends State<EpaymentformPage> {
   TextEditingController passengersCnt = TextEditingController();
   TextEditingController distanceCnt = TextEditingController();
   TextEditingController vehicleCnt = TextEditingController();
+  TextEditingController taxCnt = TextEditingController();
+  TextEditingController cessCnt = TextEditingController();
   TextEditingController totaltaxCnt = TextEditingController();
   TextEditingController weightCnt = TextEditingController();
 
@@ -269,6 +273,8 @@ class _Epaymentform extends State<EpaymentformPage> {
       passengersCnt.text = "" ;
       distanceCnt.text = "" ;
       vehicleCnt.text = "" ;
+      taxCnt.text = "" ;
+      cessCnt.text = "" ;
       totaltaxCnt.text = "" ;
 
       _selectedTaxType = selectedType;
@@ -471,7 +477,17 @@ class _Epaymentform extends State<EpaymentformPage> {
         commodity_tax_calculation = commodityObj.tax_commodity_taxcalculation;
         commodity_isdistancedependent = (commodityObj.tax_commodity_isdistancedependent == "NO") ? true : false;
 
-        totaltaxCnt.text = (commodityObj.tax_commodity_rate).toString();
+        taxCnt.text = (commodityObj.tax_commodity_rate).toString();
+        cess_text = commodityObj.tax_commodity_cess.toString();
+        if(commodityObj.tax_commodity_cess > 0) {
+          show_cess = true;
+         var calculated_cess =  commodityObj.tax_commodity_cess / 100 * commodityObj.tax_commodity_rate;
+          totaltaxCnt.text = (commodityObj.tax_commodity_rate + calculated_cess).toString();
+          cessCnt.text = calculated_cess.toString();
+        } else {
+          show_cess = false;
+          totaltaxCnt.text = (commodityObj.tax_commodity_rate).toString();
+        }
         /*
         if (_selectedTaxType == "AG") {
           weight = "1";
@@ -666,6 +682,7 @@ class _Epaymentform extends State<EpaymentformPage> {
 
 
   bool loading = true;
+  bool show_cess = false;
 
   final TextEditingController _typeAheadController = TextEditingController();
   String _selectedCity;
@@ -683,6 +700,7 @@ class _Epaymentform extends State<EpaymentformPage> {
           )
       ),
       suggestionsCallback: (pattern) async {
+        print("========= : " + pattern);
         return await _placesApi.get_places(pattern);
       },
       itemBuilder: (context, suggestion) {
@@ -850,12 +868,14 @@ class _Epaymentform extends State<EpaymentformPage> {
             controller: editCommodityCnt
         ),
 
-        (weight == "1") ? form_weight_field(weightCnt, commodityObj, _tax, totaltaxCnt) : new SizedBox.shrink(),
+        (weight == "1") ? form_weight_field(weightCnt, commodityObj, _tax, totaltaxCnt, taxCnt) : new SizedBox.shrink(),
         (places == "1") ? sourceDropdown : new SizedBox.shrink(),
         (places == "1") ? destinationDropdown : new SizedBox.shrink(),
         form_distance_field(commodityObj, _tax, totaltaxCnt, distanceCnt, passengersCnt, distance),
         form_passanger_field(commodityObj, _tax, totaltaxCnt, distanceCnt, passengersCnt, passengers),
         form_vehicle_field(vehicleCnt, vehicleIsEnabled, _tax),
+        (show_cess) ? form_tax_field(taxCnt, _tax) : new SizedBox.shrink(),
+        (show_cess) ? form_cess_field(cessCnt, _tax, cess_text) : new SizedBox.shrink(),
         form_total_field(totaltaxCnt, _tax),
 
         const SizedBox(height: 30),

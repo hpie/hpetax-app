@@ -87,7 +87,7 @@ Widget list_get_location(label, value, index) {
 
 //form fields
 
-Widget form_weight_field(weightCnt, commodityObj, _tax, totaltaxCnt) {
+Widget form_weight_field(weightCnt, commodityObj, _tax, totaltaxCnt, taxCnt) {
   return  Row(
     mainAxisAlignment: MainAxisAlignment.start,
     children: <Widget>[
@@ -103,7 +103,12 @@ Widget form_weight_field(weightCnt, commodityObj, _tax, totaltaxCnt) {
               controller: weightCnt,
               onChanged: (text) {
                 print("Weight called : " + text);
+
+                print("css : " + text);
+
+                print("Weight called : " + _tax.cess);
                 double single_price = commodityObj.tax_commodity_rate / commodityObj.tax_commodity_rate_unit;
+                taxCnt.text = (dp(double.parse(text) * single_price, 2 )).toString();
                 totaltaxCnt.text = (dp(double.parse(text) * single_price, 2 )).toString();
                 _tax.weight = text;
               }
@@ -199,6 +204,32 @@ Widget form_vehicle_field(vehicleCnt, vehicleIsEnabled, _tax) {
         _tax.vehicle_number = val;
       },
       controller: vehicleCnt
+  );
+}
+
+Widget form_tax_field(taxCnt, _tax) {
+  return TextFormField(
+      decoration: new InputDecoration(
+        labelText: 'Tax (In Rs.)',
+      ),
+      enabled : false,
+      onChanged: (String val) {
+        _tax.tax = val;
+      },
+      controller: taxCnt
+  );
+}
+
+Widget form_cess_field(cessCnt, _tax, cess_text) {
+  return TextFormField(
+      decoration: new InputDecoration(
+        labelText: 'Cess (' + cess_text + '%)',
+      ),
+      enabled : false,
+      onChanged: (String val) {
+        _tax.cess = val;
+      },
+      controller: cessCnt
   );
 }
 

@@ -3,13 +3,14 @@ class Commodity extends Object {
   String tax_commodity_id;
   String tax_commodity_name;
   String tax_commodity_description;
+  int tax_commodity_cess;
   double tax_commodity_rate;
   int tax_commodity_rate_unit;
   String tax_commodity_unit_measure;
   String tax_commodity_taxcalculation;
   String tax_commodity_isdistancedependent;
 
-   String tax_commodity_subhead;
+  String tax_commodity_subhead;
   String tax_commodity_status;
   String tax_type_id;
   String created_by;
@@ -21,6 +22,7 @@ class Commodity extends Object {
     this.tax_commodity_id,
     this.tax_commodity_name,
     this.tax_commodity_description,
+    this.tax_commodity_cess,
     this.tax_commodity_rate,
     this.tax_commodity_rate_unit,
     this.tax_commodity_unit_measure,
@@ -40,6 +42,7 @@ class Commodity extends Object {
         tax_commodity_id: json['tax_commodity_id'] as String,
         tax_commodity_name: json['tax_commodity_name'] as String,
         tax_commodity_description: json['tax_commodity_description'] as String,
+        tax_commodity_cess: json['tax_commodity_cess'] as int,
         tax_commodity_rate: double.parse(json['tax_commodity_rate'].toString()),
         tax_commodity_rate_unit: json['tax_commodity_rate_unit'] as int,
         tax_commodity_taxcalculation: json['tax_commodity_taxcalculation'] as String,
@@ -60,6 +63,7 @@ class Commodity extends Object {
     this.tax_commodity_id = "";
     this.tax_commodity_name = "";
     this.tax_commodity_description = "";
+    this.tax_commodity_cess = 0;
     this.tax_commodity_rate = null;
     this.tax_commodity_rate_unit = null;
     this.tax_commodity_unit_measure = "";
@@ -78,6 +82,7 @@ class Commodity extends Object {
     this.tax_commodity_id = json['tax_commodity_id'] as String;
     this.tax_commodity_name = json['tax_commodity_name'] as String;
     this.tax_commodity_description = json['tax_commodity_description'] as String;
+    this.tax_commodity_cess = json['tax_commodity_cess'] as int;
     this.tax_commodity_rate = double.parse( (json['tax_commodity_rate']).toString()) as double;
     this.tax_commodity_rate_unit = json['tax_commodity_rate_unit'] as int;
     this.tax_commodity_unit_measure = json['tax_commodity_unit_measure'] as String;

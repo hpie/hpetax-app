@@ -24,11 +24,11 @@ class CommodityApi {
         body: json.encode(match),
         encoding: Encoding.getByName("utf-8")).then((dynamic res) {
       var results;
-/*
+///*
           print("=======commodity data=======");
           print(res);
           print("=======commodity data=======");
-*/
+//*/
       if(res["Result"] != null) {
         results = new CommodityModel.searchResult(res["Result"]);
       } else {

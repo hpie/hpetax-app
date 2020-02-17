@@ -20,6 +20,8 @@ class Tax extends Object {
   String source_location;
   String destination_location;
   String distance;
+  String tax;
+  String cess;
   String total_tax;
   /*
   Tax(){
@@ -58,6 +60,8 @@ class Tax extends Object {
     this.source_location = "",
     this.destination_location = "",
     this.distance = "0",
+    this.tax = "0",
+    this.cess = "0",
     this.total_tax = "0",
   });
 
@@ -79,6 +83,8 @@ class Tax extends Object {
     this.source_location = "";
     this.destination_location = "";
     this.distance = "0";
+    this.tax = "0.0";
+    this.cess = "0.0";
     this.total_tax = "0.0";
   }
 
