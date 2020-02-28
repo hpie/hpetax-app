@@ -1,7 +1,8 @@
 library globals;
 
 String isDevelopment = "1";
-String googlePlacesApiKey = "AIzaSyBBYb8Qt5VL-SALXmCeycEkaNtNypMuDuE";
+String googlePlacesApiKey = "AIzaSyDOo8VS-DubgppGE3b94PsvweQyYqzrKGI";
+//https://maps.googleapis.com/maps/api/place/autocomplete/json?input=nasik&key=AIzaSyDOo8VS-DubgppGE3b94PsvweQyYqzrKGI
 
 String paymentUrl = "https://hpie.in/hpetax/app-payment/";
 //String paymentUrl = "http://192.168.1.19/hpetax/app-payment/";
